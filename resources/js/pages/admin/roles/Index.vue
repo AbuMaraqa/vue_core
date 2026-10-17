@@ -33,7 +33,7 @@ function deleteRole(): void {
         return;
     }
 
-    router.visit(destroy(roleToDelete.value.id), {
+    router.visit(destroy({ role: roleToDelete.value.id }), {
         preserveScroll: true,
         onStart: () => (isDeleting.value = true),
         onFinish: () => {
@@ -92,7 +92,7 @@ function deleteRole(): void {
                     <div class="flex items-center gap-1">
                         <Link
                             v-if="role.can.update"
-                            :href="edit(role.id)"
+                            :href="edit({ role: role.id })"
                             :title="t('Edit')"
                             class="flex size-9 items-center justify-center rounded-lg text-gray-500 hover:bg-gray-100 hover:text-brand-500 dark:text-gray-400 dark:hover:bg-white/5"
                         >

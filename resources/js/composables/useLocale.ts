@@ -3,6 +3,7 @@ import type { ComputedRef } from 'vue';
 import { computed } from 'vue';
 import LocaleController from '@/actions/App/Modules/Core/Http/Controllers/LocaleController';
 import type { Direction, Locale } from '@/types';
+import { setUrlDefaults } from '@/wayfinder';
 
 export type UseLocaleReturn = {
     locale: ComputedRef<string>;
@@ -13,9 +14,13 @@ export type UseLocaleReturn = {
 };
 
 /**
- * Keep the `lang` and `dir` attributes of the document in sync with the server locale.
+ * Fill the `{locale}` segment of every generated route with the current
+ * language, and keep the `lang` and `dir` attributes of the document in sync
+ * with the server locale.
  */
 export function initializeLocale(): void {
+    setUrlDefaults(() => ({ locale: document.documentElement.lang }));
+
     router.on('navigate', (event) => {
         const { locale, direction } = event.detail.page.props;
 

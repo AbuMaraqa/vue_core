@@ -14,16 +14,27 @@ const page = usePage();
 
 <template>
     <span class="flex items-center gap-3">
-        <span
-            class="flex size-9 shrink-0 items-center justify-center rounded-lg bg-brand-500 text-white"
-        >
-            <AppLogoIcon class="size-5 fill-current" />
-        </span>
-        <span
-            v-if="!collapsed"
-            class="truncate text-lg font-semibold text-gray-800 dark:text-white/90"
-        >
-            {{ page.props.name }}
-        </span>
+        <img
+            v-if="page.props.theme.logoUrl"
+            :src="page.props.theme.logoUrl"
+            :alt="page.props.name"
+            :class="[
+                'object-contain',
+                collapsed ? 'size-9' : 'h-9 max-w-[180px]',
+            ]"
+        />
+        <template v-else>
+            <span
+                class="flex size-9 shrink-0 items-center justify-center rounded-lg bg-brand-500 text-white"
+            >
+                <AppLogoIcon class="size-5 fill-current" />
+            </span>
+            <span
+                v-if="!collapsed"
+                class="truncate text-lg font-semibold text-gray-800 dark:text-white/90"
+            >
+                {{ page.props.name }}
+            </span>
+        </template>
     </span>
 </template>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useForm, usePage } from '@inertiajs/vue3';
-import { onUnmounted, watch } from 'vue';
+import { computed, onUnmounted, ref, watch } from 'vue';
 import BaseButton from '@/components/base/BaseButton.vue';
 import BaseCard from '@/components/base/BaseCard.vue';
 import BaseInput from '@/components/base/BaseInput.vue';
@@ -13,7 +13,7 @@ import AppearanceSettings from '@/components/settings/AppearanceSettings.vue';
 import { applyTheme } from '@/composables/useTheme';
 import { useTranslations } from '@/composables/useTranslations';
 import { update } from '@/routes/admin/settings';
-import type { FontOption, Locale } from '@/types';
+import type { FontOption, Locale, MediaInput, MediaItem } from '@/types';
 
 const props = defineProps<{
     settings: {
@@ -33,6 +33,7 @@ const props = defineProps<{
     };
     locales: Locale[];
     fonts: FontOption[];
+    logo: { data: MediaItem } | null;
     canUpdate: boolean;
 }>();
 
@@ -43,7 +44,18 @@ const form = useForm({
     general: { ...props.settings.general },
     localization: { ...props.settings.localization },
     appearance: { ...props.settings.appearance },
+    logo: { uploads: [], library: [], removed: [] } as MediaInput,
 });
+
+const logoUploading = ref(false);
+const logoFieldKey = ref(0);
+
+const logoError = computed(
+    () =>
+        Object.entries(form.errors).find(([field]) =>
+            field.startsWith('logo'),
+        )?.[1],
+);
 
 // Preview the chosen font and color immediately, and restore the saved
 // theme when leaving the page without saving.
@@ -66,7 +78,14 @@ watch(
 onUnmounted(() => applyTheme(page.props.theme));
 
 function submit(): void {
-    form.submit(update(), { preserveScroll: true });
+    form.submit(update(), {
+        preserveScroll: true,
+        onSuccess: () => {
+            // The saved logo is now the current one, so start the field afresh.
+            form.logo = { uploads: [], library: [], removed: [] };
+            logoFieldKey.value++;
+        },
+    });
 }
 </script>
 
@@ -201,16 +220,26 @@ function submit(): void {
                 <AppearanceSettings
                     v-model:font="form.appearance.font_family"
                     v-model:color="form.appearance.primary_color"
+                    :key="logoFieldKey"
+                    v-model:logo="form.logo"
+                    v-model:logo-uploading="logoUploading"
+                    :current-logo="logo?.data ?? null"
+                    :disabled="!canUpdate"
                     :fonts="fonts"
                     :errors="{
                         font: form.errors['appearance.font_family'],
                         color: form.errors['appearance.primary_color'],
+                        logo: logoError,
                     }"
                 />
             </fieldset>
 
             <div v-if="canUpdate" class="flex justify-end">
-                <BaseButton type="submit" :loading="form.processing">
+                <BaseButton
+                    type="submit"
+                    :loading="form.processing"
+                    :disabled="logoUploading"
+                >
                     {{ t('Save changes') }}
                 </BaseButton>
             </div>

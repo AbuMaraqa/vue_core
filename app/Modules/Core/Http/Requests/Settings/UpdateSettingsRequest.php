@@ -4,6 +4,8 @@ namespace App\Modules\Core\Http\Requests\Settings;
 
 use App\Modules\Core\Enums\FontFamily;
 use App\Modules\Core\Enums\Permissions\SettingPermission;
+use App\Modules\Core\Http\Requests\Concerns\ValidatesMediaInput;
+use App\Modules\Core\Models\Site;
 use App\Modules\Core\Support\Localization\Locales;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
@@ -11,6 +13,8 @@ use Illuminate\Validation\Rule;
 
 class UpdateSettingsRequest extends FormRequest
 {
+    use ValidatesMediaInput;
+
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -34,6 +38,7 @@ class UpdateSettingsRequest extends FormRequest
             'localization.default_locale' => ['required', 'string', Rule::in($locales->codes())],
             'appearance.font_family' => ['required', Rule::enum(FontFamily::class)],
             'appearance.primary_color' => ['required', 'string', 'regex:/^#[0-9a-fA-F]{6}$/'],
+            ...$this->mediaRules('logo', Site::IMAGE_MIME_TYPES, maxKilobytes: 2048, maxFiles: 1),
         ];
     }
 

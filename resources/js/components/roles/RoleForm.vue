@@ -42,7 +42,7 @@ function toggleAll(names: string[], selected: boolean): void {
 }
 
 function submit(): void {
-    form.submit(props.role ? update(props.role.id) : store(), {
+    form.submit(props.role ? update({ role: props.role.id }) : store(), {
         preserveScroll: true,
     });
 }

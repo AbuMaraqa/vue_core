@@ -2,6 +2,15 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::inertia('/', 'Welcome')->name('home');
+Route::prefix('{locale}')->group(function () {
+    Route::inertia('/', 'Welcome')->name('home');
 
-require __DIR__.'/settings.php';
+    require __DIR__.'/settings.php';
+});
+
+Route::get('.well-known/passkey-endpoints', function () {
+    return response()->json([
+        'enroll' => route('security.edit'),
+        'manage' => route('security.edit'),
+    ]);
+})->name('well-known.passkeys');

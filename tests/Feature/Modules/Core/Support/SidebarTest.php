@@ -28,7 +28,7 @@ test('super admins see every sidebar entry', function () {
     $this->actingAs(User::factory()->superAdmin()->create())
         ->get(route('admin.dashboard'))
         ->assertInertia(fn (Assert $page) => $page
-            ->has('sidebar.1.items', 3)
+            ->has('sidebar.1.items', 4)
             ->has('sidebar.1.items.0.children', 3),
         );
 });

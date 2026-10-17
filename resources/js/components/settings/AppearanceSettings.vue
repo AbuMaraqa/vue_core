@@ -4,19 +4,25 @@ import BaseCard from '@/components/base/BaseCard.vue';
 import BaseInput from '@/components/base/BaseInput.vue';
 import BaseInputError from '@/components/base/BaseInputError.vue';
 import BaseLabel from '@/components/base/BaseLabel.vue';
+import MediaUpload from '@/components/media/MediaUpload.vue';
 import { useTranslations } from '@/composables/useTranslations';
-import type { FontOption } from '@/types';
+import type { FontOption, MediaInput, MediaItem } from '@/types';
 
 defineProps<{
     fonts: FontOption[];
+    currentLogo: MediaItem | null;
+    disabled?: boolean;
     errors: {
         font?: string;
         color?: string;
+        logo?: string;
     };
 }>();
 
 const font = defineModel<string>('font', { required: true });
 const color = defineModel<string>('color', { required: true });
+const logo = defineModel<MediaInput>('logo', { required: true });
+const logoUploading = defineModel<boolean>('logoUploading', { default: false });
 
 const { t } = useTranslations();
 
@@ -38,6 +44,23 @@ const presetColors = [
         :description="t('The font and primary color of the whole interface.')"
     >
         <div class="space-y-6">
+            <div class="max-w-md">
+                <BaseLabel>{{ t('Logo') }}</BaseLabel>
+                <MediaUpload
+                    v-model="logo"
+                    v-model:busy="logoUploading"
+                    :media="currentLogo ? [currentLogo] : []"
+                    max-file-size="2MB"
+                    :disabled="disabled"
+                />
+                <p
+                    class="mt-1.5 text-theme-xs text-gray-500 dark:text-gray-400"
+                >
+                    {{ t('PNG, JPG, WEBP or GIF, up to 2 MB.') }}
+                </p>
+                <BaseInputError :message="errors.logo" />
+            </div>
+
             <div>
                 <BaseLabel>{{ t('Font') }}</BaseLabel>
                 <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">

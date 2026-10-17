@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Models\User;
+use App\Modules\Core\Models\Site;
 use App\Modules\Core\Settings\AppearanceSettings;
 use App\Modules\Core\Settings\GeneralSettings;
 use App\Modules\Core\Support\Localization\Locales;
@@ -48,7 +49,10 @@ class HandleInertiaRequests extends Middleware
         return [
             ...parent::share($request),
             'name' => fn (): string => app(GeneralSettings::class)->site_name,
-            'theme' => fn (): array => app(AppearanceSettings::class)->theme(),
+            'theme' => fn (): array => [
+                ...app(AppearanceSettings::class)->theme(),
+                'logoUrl' => Site::current()->logoUrl(),
+            ],
             'auth' => [
                 'user' => $user,
                 'permissions' => fn (): array => $user ? $this->permissionsOf($user) : [],

@@ -69,7 +69,14 @@ const { t } = useTranslations();
                             :href="home()"
                             class="mb-4 flex items-center gap-3 text-white"
                         >
+                            <img
+                                v-if="page.props.theme.logoUrl"
+                                :src="page.props.theme.logoUrl"
+                                :alt="page.props.name"
+                                class="h-16 max-w-[240px] rounded-xl bg-white/95 object-contain p-2"
+                            />
                             <span
+                                v-else
                                 class="flex size-12 items-center justify-center rounded-xl bg-brand-500"
                             >
                                 <AppLogoIcon class="size-7 fill-current" />

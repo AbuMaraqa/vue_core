@@ -26,7 +26,7 @@ const form = useForm({
 });
 
 function submit(): void {
-    form.submit(props.user ? update(props.user.id) : store(), {
+    form.submit(props.user ? update({ user: props.user.id }) : store(), {
         preserveScroll: true,
         onFinish: () => form.reset('password', 'password_confirmation'),
     });

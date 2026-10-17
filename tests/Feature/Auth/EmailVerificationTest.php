@@ -81,7 +81,7 @@ test('verified user is redirected to dashboard from verification prompt', functi
     $response = $this->actingAs($user)->get(route('verification.notice'));
 
     Event::assertNotDispatched(Verified::class);
-    $response->assertRedirect(route('home'));
+    $response->assertRedirect(route('root'));
 });
 
 test('already verified user visiting verification link is redirected without firing event again', function () {

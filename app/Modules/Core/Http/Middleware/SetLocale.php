@@ -6,6 +6,7 @@ use App\Modules\Core\Settings\LocalizationSettings;
 use App\Modules\Core\Support\Localization\Locales;
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\URL;
 use Symfony\Component\HttpFoundation\Response;
 
 class SetLocale
@@ -13,13 +14,27 @@ class SetLocale
     public function __construct(protected Locales $locales) {}
 
     /**
-     * Apply the locale chosen by the visitor, their account, or the store default.
+     * Apply the locale of the URL, or the one chosen by the visitor, their
+     * account or the store default on pages without a language segment.
      *
      * @param  Closure(Request): (Response)  $next
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $this->locales->apply($this->resolveLocale($request));
+        $urlLocale = $request->route('locale');
+
+        if (is_string($urlLocale) && $this->locales->isSupported($urlLocale)) {
+            $request->session()->put('locale', $urlLocale);
+
+            // The segment only selects the language; controllers never receive it.
+            $request->route()?->forgetParameter('locale');
+        }
+
+        $locale = $this->resolveLocale($request);
+
+        $this->locales->apply($locale);
+
+        URL::defaults(['locale' => $locale]);
 
         return $next($request);
     }

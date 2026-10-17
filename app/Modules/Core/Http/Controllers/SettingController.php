@@ -3,9 +3,13 @@
 namespace App\Modules\Core\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Modules\Core\Actions\Media\SyncMediaCollection;
+use App\Modules\Core\Data\MediaInputData;
 use App\Modules\Core\Enums\FontFamily;
 use App\Modules\Core\Enums\Permissions\SettingPermission;
 use App\Modules\Core\Http\Requests\Settings\UpdateSettingsRequest;
+use App\Modules\Core\Http\Resources\MediaResource;
+use App\Modules\Core\Models\Site;
 use App\Modules\Core\Settings\AppearanceSettings;
 use App\Modules\Core\Settings\GeneralSettings;
 use App\Modules\Core\Settings\LocalizationSettings;
@@ -21,6 +25,8 @@ class SettingController extends Controller
     {
         Gate::authorize(SettingPermission::View);
 
+        $logo = Site::current()->getFirstMedia(Site::LOGO);
+
         return Inertia::render('admin/settings/Edit', [
             'settings' => [
                 'general' => $general->toArray(),
@@ -30,14 +36,17 @@ class SettingController extends Controller
                     'primary_color' => $appearance->primary_color,
                 ],
             ],
+            'logo' => $logo ? MediaResource::make($logo) : null,
             'locales' => $locales->all(),
             'fonts' => FontFamily::options(),
             'canUpdate' => Gate::allows(SettingPermission::Update),
         ]);
     }
 
-    public function update(UpdateSettingsRequest $request, GeneralSettings $general, LocalizationSettings $localization, AppearanceSettings $appearance): RedirectResponse
+    public function update(UpdateSettingsRequest $request, GeneralSettings $general, LocalizationSettings $localization, AppearanceSettings $appearance, SyncMediaCollection $syncMedia): RedirectResponse
     {
+        $syncMedia->handle(Site::current(), Site::LOGO, MediaInputData::from($request->validated('logo', [])));
+
         $general->fill($request->validated('general'))->save();
         $localization->fill($request->validated('localization'))->save();
         $appearance->fill([

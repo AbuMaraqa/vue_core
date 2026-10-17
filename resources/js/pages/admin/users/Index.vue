@@ -66,7 +66,7 @@ function deleteUser(): void {
         return;
     }
 
-    router.visit(destroy(userToDelete.value.id), {
+    router.visit(destroy({ user: userToDelete.value.id }), {
         preserveScroll: true,
         onStart: () => (isDeleting.value = true),
         onFinish: () => {
@@ -200,7 +200,7 @@ function deleteUser(): void {
                                 >
                                     <Link
                                         v-if="user.can.update"
-                                        :href="edit(user.id)"
+                                        :href="edit({ user: user.id })"
                                         :title="t('Edit')"
                                         class="flex size-9 items-center justify-center rounded-lg text-gray-500 hover:bg-gray-100 hover:text-brand-500 dark:text-gray-400 dark:hover:bg-white/5"
                                     >

@@ -354,6 +354,45 @@
     text-align: right;
 }
 
+/*
+|--------------------------------------------------------------------------
+| FilePond
+|--------------------------------------------------------------------------
+*/
+
+.filepond--root {
+    @apply mb-0 font-sans;
+}
+
+.filepond--panel-root {
+    @apply rounded-xl border border-dashed border-gray-300 bg-gray-50 dark:border-gray-700 dark:bg-gray-900;
+}
+
+.filepond--drop-label {
+    @apply min-h-28 text-sm text-gray-500 dark:text-gray-400;
+}
+
+.filepond--label-action {
+    @apply font-medium text-brand-500 no-underline;
+}
+
+.filepond--item-panel {
+    @apply bg-gray-700;
+}
+
+[data-filepond-item-state='processing-complete'] .filepond--item-panel {
+    @apply bg-success-500;
+}
+
+[data-filepond-item-state*='error'] .filepond--item-panel,
+[data-filepond-item-state*='invalid'] .filepond--item-panel {
+    @apply bg-error-500;
+}
+
+.filepond--root[data-disabled] {
+    @apply opacity-60;
+}
+
 @keyframes fade-in {
     from {
         opacity: 0;
