@@ -1,6 +1,5 @@
 <?php
 
-use App\Modules\Core\Enums\Permissions\DashboardPermission;
 use App\Modules\Core\Http\Controllers\ActivityLogController;
 use App\Modules\Core\Http\Controllers\DashboardController;
 use App\Modules\Core\Http\Controllers\MediaController;
@@ -10,7 +9,7 @@ use App\Modules\Core\Http\Controllers\TemporaryUploadController;
 use App\Modules\Core\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['web', 'auth', 'verified', 'can:'.DashboardPermission::Access->value])
+Route::middleware(['web', 'auth', 'verified', 'can:Dashboard View'])
     ->prefix('{locale}/admin')
     ->name('admin.')
     ->group(function () {

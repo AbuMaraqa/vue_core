@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
-import { Menu, X } from '@lucide/vue';
+import Menu from '~icons/solar/hamburger-menu-linear';
+import X from '~icons/solar/close-linear';
 import AppLogo from '@/components/layout/AppLogo.vue';
 import LanguageSwitcher from '@/components/layout/LanguageSwitcher.vue';
 import ThemeToggler from '@/components/layout/ThemeToggler.vue';

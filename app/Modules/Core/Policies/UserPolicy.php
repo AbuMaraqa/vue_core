@@ -3,18 +3,15 @@
 namespace App\Modules\Core\Policies;
 
 use App\Models\User;
-use App\Modules\Core\Enums\Permissions\UserPermission;
+use App\Modules\Core\Concerns\AuthorizesWithPermissions;
 
 class UserPolicy
 {
-    public function viewAny(User $user): bool
-    {
-        return $user->can(UserPermission::ViewAny);
-    }
+    use AuthorizesWithPermissions;
 
-    public function create(User $user): bool
+    protected function permissionPrefix(): string
     {
-        return $user->can(UserPermission::Create);
+        return 'User';
     }
 
     /**
@@ -26,7 +23,7 @@ class UserPolicy
             return false;
         }
 
-        return $user->can(UserPermission::Update);
+        return $this->hasPermission($user, 'Update');
     }
 
     /**
@@ -42,6 +39,6 @@ class UserPolicy
             return false;
         }
 
-        return $user->can(UserPermission::Delete);
+        return $this->hasPermission($user, 'Delete');
     }
 }

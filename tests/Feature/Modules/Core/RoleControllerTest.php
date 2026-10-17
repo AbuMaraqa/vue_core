@@ -1,14 +1,13 @@
 <?php
 
-use App\Modules\Core\Enums\Permissions\RolePermission;
-use App\Modules\Core\Enums\Permissions\UserPermission;
 use App\Modules\Core\Enums\UserRole;
+use Database\Seeders\PermissionSeeder;
 use Inertia\Testing\AssertableInertia as Assert;
 use Spatie\Activitylog\Models\Activity;
 use Spatie\Permission\Models\Role;
 
 beforeEach(function () {
-    $this->artisan('permissions:sync');
+    $this->seed(PermissionSeeder::class);
 });
 
 test('staff members without the permission are forbidden', function () {
@@ -18,33 +17,36 @@ test('staff members without the permission are forbidden', function () {
 });
 
 test('the create screen lists the permissions grouped by module', function () {
-    $this->actingAs(staffMember(RolePermission::Create))
+    $this->actingAs(staffMember('Roles And Permissions Create'))
         ->get(route('admin.roles.create'))
         ->assertOk()
         ->assertInertia(fn (Assert $page) => $page
             ->component('admin/roles/Create')
-            ->where('permissionGroups.1.key', 'UserPermission')
-            ->where('permissionGroups.1.permissions.0.name', UserPermission::ViewAny->value),
+            ->where('permissionGroups', function ($groups): bool {
+                $userGroup = collect($groups)->firstWhere('module', 'User Management');
+
+                return $userGroup['permissions'] === ['User View List', 'User Create', 'User Update', 'User Delete'];
+            }),
         );
 });
 
 test('a role is created with its permissions and recorded in the activity log', function () {
-    $this->actingAs(staffMember(RolePermission::Create))
+    $this->actingAs(staffMember('Roles And Permissions Create'))
         ->post(route('admin.roles.store'), [
             'name' => 'Editor',
-            'permissions' => [UserPermission::ViewAny->value, UserPermission::Update->value],
+            'permissions' => ['User View List', 'User Update'],
         ])
         ->assertRedirect(route('admin.roles.index'));
 
     $role = Role::findByName('Editor', 'web');
 
     expect($role->permissions->pluck('name')->all())
-        ->toEqualCanonicalizing([UserPermission::ViewAny->value, UserPermission::Update->value])
+        ->toEqualCanonicalizing(['User View List', 'User Update'])
         ->and(Activity::query()->where('log_name', 'roles')->where('event', 'created')->exists())->toBeTrue();
 });
 
 test('unknown permissions are rejected', function () {
-    $this->actingAs(staffMember(RolePermission::Create))
+    $this->actingAs(staffMember('Roles And Permissions Create'))
         ->post(route('admin.roles.store'), [
             'name' => 'Editor',
             'permissions' => ['orders.refund'],
@@ -55,7 +57,7 @@ test('unknown permissions are rejected', function () {
 test('system roles keep their name when updated', function () {
     $role = Role::findOrCreate(UserRole::Admin->value, 'web');
 
-    $this->actingAs(staffMember(RolePermission::Update))
+    $this->actingAs(staffMember('Roles And Permissions Update'))
         ->put(route('admin.roles.update', $role), [
             'name' => 'Renamed',
             'permissions' => [],
@@ -66,25 +68,25 @@ test('system roles keep their name when updated', function () {
 });
 
 test('the permissions of a role are replaced on update', function () {
-    $role = Role::findOrCreate('Editor', 'web')->givePermissionTo(UserPermission::Delete->value);
+    $role = Role::findOrCreate('Editor', 'web')->givePermissionTo('User Delete');
 
-    $this->actingAs(staffMember(RolePermission::Update))
+    $this->actingAs(staffMember('Roles And Permissions Update'))
         ->put(route('admin.roles.update', $role), [
             'name' => 'Content Editor',
-            'permissions' => [UserPermission::ViewAny->value],
+            'permissions' => ['User View List'],
         ])
         ->assertRedirect(route('admin.roles.index'));
 
     $role->refresh();
 
     expect($role->name)->toBe('Content Editor')
-        ->and($role->permissions->pluck('name')->all())->toBe([UserPermission::ViewAny->value]);
+        ->and($role->permissions->pluck('name')->all())->toBe(['User View List']);
 });
 
 test('custom roles can be deleted', function () {
     $role = Role::findOrCreate('Editor', 'web');
 
-    $this->actingAs(staffMember(RolePermission::Delete))
+    $this->actingAs(staffMember('Roles And Permissions Delete'))
         ->delete(route('admin.roles.destroy', $role))
         ->assertRedirect(route('admin.roles.index'));
 
@@ -94,7 +96,7 @@ test('custom roles can be deleted', function () {
 test('system roles cannot be deleted', function () {
     $role = Role::findOrCreate(UserRole::Customer->value, 'web');
 
-    $this->actingAs(staffMember(RolePermission::Delete))
+    $this->actingAs(staffMember('Roles And Permissions Delete'))
         ->delete(route('admin.roles.destroy', $role))
         ->assertForbidden();
 

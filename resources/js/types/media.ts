@@ -1,3 +1,5 @@
+import type { ResourceAbilities } from './admin';
+
 export type MediaItem = {
     id: number;
     name: string;
@@ -12,10 +14,8 @@ export type MediaItem = {
         type: string;
         id: number | string;
     };
-    created_at: string;
-    can: {
-        delete: boolean;
-    };
+    created_at: string | null;
+    can: Pick<ResourceAbilities, 'delete'>;
 };
 
 /**

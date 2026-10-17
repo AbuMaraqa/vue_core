@@ -2,7 +2,6 @@
 
 namespace App\Modules\Core\Http\Requests\Media;
 
-use App\Modules\Core\Enums\Permissions\MediaPermission;
 use App\Modules\Core\Models\Site;
 use App\Modules\Core\Rules\ValidTemporaryUpload;
 use Illuminate\Contracts\Validation\ValidationRule;
@@ -15,7 +14,7 @@ class StoreMediaRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()->can(MediaPermission::Create);
+        return $this->user()->can('Media Create');
     }
 
     /**

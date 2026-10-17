@@ -24,16 +24,17 @@ const form = useForm({
 });
 
 const allPermissions = computed(() =>
-    props.permissionGroups.flatMap((group) =>
-        group.permissions.map((permission) => permission.name),
-    ),
+    props.permissionGroups.flatMap((group) => group.permissions),
 );
-
-const namesOf = (group: PermissionGroup): string[] =>
-    group.permissions.map((permission) => permission.name);
 
 const selectedCount = (names: string[]): number =>
     names.filter((name) => form.permissions.includes(name)).length;
+
+const isAllSelected = (names: string[]): boolean =>
+    selectedCount(names) === names.length;
+
+const isPartlySelected = (names: string[]): boolean =>
+    selectedCount(names) > 0 && selectedCount(names) < names.length;
 
 function toggleAll(names: string[], selected: boolean): void {
     form.permissions = selected
@@ -53,9 +54,9 @@ function submit(): void {
         <BaseCard :title="t('Role details')">
             <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
                 <div>
-                    <BaseLabel for="name" required>{{
-                        t('Role name')
-                    }}</BaseLabel>
+                    <BaseLabel for="name" required>
+                        {{ t('Role name') }}
+                    </BaseLabel>
                     <BaseInput
                         id="name"
                         v-model="form.name"
@@ -81,13 +82,8 @@ function submit(): void {
         >
             <template #actions>
                 <BaseCheckbox
-                    :model-value="
-                        selectedCount(allPermissions) === allPermissions.length
-                    "
-                    :indeterminate="
-                        selectedCount(allPermissions) > 0 &&
-                        selectedCount(allPermissions) < allPermissions.length
-                    "
+                    :model-value="isAllSelected(allPermissions)"
+                    :indeterminate="isPartlySelected(allPermissions)"
                     @update:model-value="
                         (value) => toggleAll(allPermissions, Boolean(value))
                     "
@@ -97,37 +93,30 @@ function submit(): void {
             </template>
 
             <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-                <div
+                <section
                     v-for="group in permissionGroups"
-                    :key="group.key"
+                    :key="group.module"
                     class="rounded-xl border border-gray-200 p-4 dark:border-gray-800"
                 >
                     <div
                         class="mb-4 flex items-center justify-between gap-2 border-b border-gray-100 pb-3 dark:border-gray-800"
                     >
                         <BaseCheckbox
-                            :model-value="
-                                selectedCount(namesOf(group)) ===
-                                group.permissions.length
-                            "
-                            :indeterminate="
-                                selectedCount(namesOf(group)) > 0 &&
-                                selectedCount(namesOf(group)) <
-                                    group.permissions.length
-                            "
+                            :model-value="isAllSelected(group.permissions)"
+                            :indeterminate="isPartlySelected(group.permissions)"
                             @update:model-value="
                                 (value) =>
-                                    toggleAll(namesOf(group), Boolean(value))
+                                    toggleAll(group.permissions, Boolean(value))
                             "
                         >
                             <span
                                 class="font-medium text-gray-800 dark:text-white/90"
                             >
-                                {{ t(group.label) }}
+                                {{ t(group.module) }}
                             </span>
                         </BaseCheckbox>
                         <span class="text-theme-xs text-gray-400">
-                            {{ selectedCount(namesOf(group)) }}/{{
+                            {{ selectedCount(group.permissions) }}/{{
                                 group.permissions.length
                             }}
                         </span>
@@ -135,14 +124,14 @@ function submit(): void {
                     <div class="space-y-3">
                         <BaseCheckbox
                             v-for="permission in group.permissions"
-                            :key="permission.name"
+                            :key="permission"
                             v-model="form.permissions"
-                            :value="permission.name"
+                            :value="permission"
                         >
-                            {{ t(permission.label) }}
+                            {{ t(permission) }}
                         </BaseCheckbox>
                     </div>
-                </div>
+                </section>
             </div>
             <BaseInputError :message="form.errors.permissions" />
         </BaseCard>

@@ -1,5 +1,8 @@
 <script setup lang="ts">
-import { CircleAlert, CircleCheck, Info, TriangleAlert } from '@lucide/vue';
+import CircleAlert from '~icons/solar/danger-circle-linear';
+import CircleCheck from '~icons/solar/check-circle-linear';
+import Info from '~icons/solar/info-circle-linear';
+import TriangleAlert from '~icons/solar/danger-triangle-linear';
 import { computed } from 'vue';
 
 type Props = {

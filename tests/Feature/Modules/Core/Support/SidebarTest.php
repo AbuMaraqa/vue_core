@@ -1,8 +1,6 @@
 <?php
 
 use App\Models\User;
-use App\Modules\Core\Enums\Permissions\RolePermission;
-use App\Modules\Core\Enums\Permissions\UserPermission;
 use App\Modules\Core\Support\Sidebar\Sidebar;
 use App\Modules\Core\Support\Sidebar\SidebarGroup;
 use App\Modules\Core\Support\Sidebar\SidebarItem;
@@ -10,7 +8,7 @@ use Illuminate\Http\Request;
 use Inertia\Testing\AssertableInertia as Assert;
 
 test('the shared sidebar only contains the entries the user may open', function () {
-    $this->actingAs(staffMember(UserPermission::ViewAny))
+    $this->actingAs(staffMember('User View List'))
         ->get(route('admin.users.index'))
         ->assertInertia(fn (Assert $page) => $page
             ->has('sidebar', 2)
@@ -37,7 +35,7 @@ test('groups without visible children are hidden', function () {
     $sidebar = new Sidebar;
     $sidebar->section('main', 'Menu')->add(
         SidebarGroup::make('Roles')->add(
-            SidebarItem::make('Roles')->route('admin.roles.index')->can(RolePermission::ViewAny),
+            SidebarItem::make('Roles')->route('admin.roles.index')->can('Roles And Permissions View List'),
         ),
     );
 

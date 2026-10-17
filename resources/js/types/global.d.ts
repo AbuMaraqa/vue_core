@@ -1,3 +1,4 @@
+import type { createHeadManager, Page, Router } from '@inertiajs/core';
 import type { Directive } from 'vue';
 import type { Auth } from '@/types/auth';
 import type { Direction, Locale } from '@/types/localization';

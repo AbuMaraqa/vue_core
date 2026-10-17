@@ -8,7 +8,7 @@ import BaseInput from '@/components/base/BaseInput.vue';
 import BaseInputError from '@/components/base/BaseInputError.vue';
 import BaseLabel from '@/components/base/BaseLabel.vue';
 import PageHeader from '@/components/common/PageHeader.vue';
-import DeleteUser from '@/components/DeleteUser.vue';
+import DeleteUser from '@/components/account/DeleteUser.vue';
 import { useTranslations } from '@/composables/useTranslations';
 import { send } from '@/routes/verification';
 

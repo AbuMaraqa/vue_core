@@ -28,7 +28,7 @@ const { can } = usePermissions();
                 {{ t('Latest users') }}
             </h3>
             <Link
-                v-if="can('users.view-any')"
+                v-if="can('User View List')"
                 :href="usersIndex()"
                 class="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-theme-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03]"
             >
@@ -79,7 +79,7 @@ const { can } = usePermissions();
                                 >
                                     {{ t(role) }}
                                 </BaseBadge>
-                                <span v-if="!user.roles.length">—</span>
+                                <span v-if="!user.roles?.length">—</span>
                             </div>
                         </td>
                         <td class="td-cell">

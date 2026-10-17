@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
-import { ChevronDown } from '@lucide/vue';
+import ChevronDown from '~icons/solar/alt-arrow-down-linear';
 import { computed } from 'vue';
 import AppIcon from '@/components/common/AppIcon.vue';
 import { useSidebar } from '@/composables/useSidebar';

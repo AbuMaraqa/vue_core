@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Inbox } from '@lucide/vue';
+import Inbox from '~icons/solar/inbox-linear';
 
 defineProps<{
     message: string;

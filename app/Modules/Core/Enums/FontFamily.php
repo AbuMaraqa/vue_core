@@ -3,7 +3,7 @@
 namespace App\Modules\Core\Enums;
 
 /**
- * The interface fonts the store can choose from. Each one is loaded by Vite
+ * The interface fonts the site owner can choose from. Each one is loaded by Vite
  * and exposed as a `--font-{value}` CSS variable.
  */
 enum FontFamily: string

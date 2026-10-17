@@ -6,8 +6,8 @@ import BaseCheckbox from '@/components/base/BaseCheckbox.vue';
 import BaseInput from '@/components/base/BaseInput.vue';
 import BaseInputError from '@/components/base/BaseInputError.vue';
 import BaseLabel from '@/components/base/BaseLabel.vue';
-import PasskeyVerify from '@/components/PasskeyVerify.vue';
-import PasswordInput from '@/components/PasswordInput.vue';
+import PasskeyVerify from '@/components/account/PasskeyVerify.vue';
+import BasePasswordInput from '@/components/base/BasePasswordInput.vue';
 import { useTranslations } from '@/composables/useTranslations';
 import { register } from '@/routes';
 import { store } from '@/routes/login';
@@ -62,7 +62,7 @@ const { t } = useTranslations();
                 <BaseLabel for="password" required>{{
                     t('Password')
                 }}</BaseLabel>
-                <PasswordInput
+                <BasePasswordInput
                     id="password"
                     name="password"
                     required

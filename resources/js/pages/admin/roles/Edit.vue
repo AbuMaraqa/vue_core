@@ -3,10 +3,10 @@ import PageHeader from '@/components/common/PageHeader.vue';
 import RoleForm from '@/components/roles/RoleForm.vue';
 import { useTranslations } from '@/composables/useTranslations';
 import { index } from '@/routes/admin/roles';
-import type { PermissionGroup, Role } from '@/types';
+import type { PermissionGroup, Resource, Role } from '@/types';
 
 defineProps<{
-    role: { data: Role };
+    role: Resource<Role>;
     permissionGroups: PermissionGroup[];
 }>();
 

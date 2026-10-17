@@ -1,5 +1,9 @@
 <script setup lang="ts">
-import { Check, Copy, ExternalLink, FileText, Trash2 } from '@lucide/vue';
+import Check from '~icons/solar/check-linear';
+import Copy from '~icons/solar/copy-linear';
+import ExternalLink from '~icons/solar/square-arrow-right-up-linear';
+import FileText from '~icons/solar/document-text-linear';
+import Trash2 from '~icons/solar/trash-bin-minimalistic-linear';
 import { useClipboard } from '@vueuse/core';
 import BaseBadge from '@/components/base/BaseBadge.vue';
 import BaseButton from '@/components/base/BaseButton.vue';

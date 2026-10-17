@@ -3,20 +3,17 @@
 namespace App\Modules\Core\Policies;
 
 use App\Models\User;
-use App\Modules\Core\Enums\Permissions\RolePermission;
+use App\Modules\Core\Concerns\AuthorizesWithPermissions;
 use App\Modules\Core\Enums\UserRole;
 use Spatie\Permission\Models\Role;
 
 class RolePolicy
 {
-    public function viewAny(User $user): bool
-    {
-        return $user->can(RolePermission::ViewAny);
-    }
+    use AuthorizesWithPermissions;
 
-    public function create(User $user): bool
+    protected function permissionPrefix(): string
     {
-        return $user->can(RolePermission::Create);
+        return 'Roles And Permissions';
     }
 
     /**
@@ -28,7 +25,7 @@ class RolePolicy
             return false;
         }
 
-        return $user->can(RolePermission::Update);
+        return $this->hasPermission($user, 'Update');
     }
 
     /**
@@ -40,6 +37,6 @@ class RolePolicy
             return false;
         }
 
-        return $user->can(RolePermission::Delete);
+        return $this->hasPermission($user, 'Delete');
     }
 }

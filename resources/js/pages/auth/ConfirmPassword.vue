@@ -7,8 +7,8 @@ import {
 import BaseButton from '@/components/base/BaseButton.vue';
 import BaseInputError from '@/components/base/BaseInputError.vue';
 import BaseLabel from '@/components/base/BaseLabel.vue';
-import PasskeyVerify from '@/components/PasskeyVerify.vue';
-import PasswordInput from '@/components/PasswordInput.vue';
+import PasskeyVerify from '@/components/account/PasskeyVerify.vue';
+import BasePasswordInput from '@/components/base/BasePasswordInput.vue';
 import { useTranslations } from '@/composables/useTranslations';
 import { store } from '@/routes/password/confirm';
 
@@ -42,7 +42,7 @@ const { t } = useTranslations();
                 <BaseLabel for="password" required>{{
                     t('Password')
                 }}</BaseLabel>
-                <PasswordInput
+                <BasePasswordInput
                     id="password"
                     name="password"
                     required

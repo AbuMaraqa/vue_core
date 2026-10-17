@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
-import { ChevronLeft, ChevronRight } from '@lucide/vue';
+import ChevronLeft from '~icons/solar/alt-arrow-left-linear';
+import ChevronRight from '~icons/solar/alt-arrow-right-linear';
 import { useTranslations } from '@/composables/useTranslations';
 import type { Paginated } from '@/types';
 

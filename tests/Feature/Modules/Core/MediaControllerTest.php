@@ -1,6 +1,5 @@
 <?php
 
-use App\Modules\Core\Enums\Permissions\MediaPermission;
 use App\Modules\Core\Models\Site;
 use App\Modules\Core\Models\TemporaryUpload;
 use Illuminate\Http\UploadedFile;
@@ -23,7 +22,7 @@ test('the library lists the media of every model and can be filtered by type', f
     $site->addMedia(UploadedFile::fake()->image('banner.png'))->toMediaCollection(Site::LIBRARY);
     $site->addMedia(UploadedFile::fake()->image('logo.png'))->toMediaCollection(Site::LOGO);
 
-    $this->actingAs(staffMember(MediaPermission::ViewAny))
+    $this->actingAs(staffMember('Media View List'))
         ->get(route('admin.media.index', ['filter' => ['type' => 'image']]))
         ->assertOk()
         ->assertInertia(fn (Assert $page) => $page
@@ -41,7 +40,7 @@ test('the picker only returns images', function () {
     $site->addMedia(UploadedFile::fake()->image('banner.png'))->toMediaCollection(Site::LIBRARY);
     $site->addMedia(UploadedFile::fake()->create('guide.pdf', 10, 'application/pdf'))->toMediaCollection('documents');
 
-    $this->actingAs(staffMember(MediaPermission::ViewAny))
+    $this->actingAs(staffMember('Media View List'))
         ->getJson(route('admin.media.browse'))
         ->assertOk()
         ->assertJsonCount(1, 'data')
@@ -49,7 +48,7 @@ test('the picker only returns images', function () {
 });
 
 test('uploads are saved into the library', function () {
-    $staffMember = staffMember(MediaPermission::Create);
+    $staffMember = staffMember('Media Create');
     $upload = TemporaryUpload::factory()->image('product.png')->create(['user_id' => $staffMember->id]);
 
     $this->actingAs($staffMember)
@@ -66,7 +65,7 @@ test('uploads are saved into the library', function () {
 test('uploads of other users cannot be saved', function () {
     $upload = TemporaryUpload::factory()->image()->create();
 
-    $this->actingAs(staffMember(MediaPermission::Create))
+    $this->actingAs(staffMember('Media Create'))
         ->post(route('admin.media.store'), ['uploads' => [$upload->id]])
         ->assertSessionHasErrors('uploads.0');
 
@@ -76,11 +75,11 @@ test('uploads of other users cannot be saved', function () {
 test('deleting media requires the permission', function () {
     $media = Site::current()->addMedia(UploadedFile::fake()->image('banner.png'))->toMediaCollection(Site::LIBRARY);
 
-    $this->actingAs(staffMember(MediaPermission::ViewAny))
+    $this->actingAs(staffMember('Media View List'))
         ->delete(route('admin.media.destroy', $media))
         ->assertForbidden();
 
-    $this->actingAs(staffMember(MediaPermission::Delete))
+    $this->actingAs(staffMember('Media Delete'))
         ->delete(route('admin.media.destroy', $media))
         ->assertRedirect();
 

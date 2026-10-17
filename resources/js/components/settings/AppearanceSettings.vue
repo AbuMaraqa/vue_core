@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Check } from '@lucide/vue';
+import Check from '~icons/solar/check-linear';
 import BaseCard from '@/components/base/BaseCard.vue';
 import BaseInput from '@/components/base/BaseInput.vue';
 import BaseInputError from '@/components/base/BaseInputError.vue';

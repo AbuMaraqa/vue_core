@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { Check, Minus } from '@lucide/vue';
+import Check from '~icons/solar/check-linear';
+import Minus from '~icons/solar/minus-linear';
 
 defineOptions({ inheritAttrs: false });
 

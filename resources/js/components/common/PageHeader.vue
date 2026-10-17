@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { InertiaLinkProps } from '@inertiajs/vue3';
 import { Head, Link } from '@inertiajs/vue3';
-import { ChevronRight } from '@lucide/vue';
+import ChevronRight from '~icons/solar/alt-arrow-right-linear';
 import { useTranslations } from '@/composables/useTranslations';
 import { dashboard } from '@/routes/admin';
 

@@ -7,7 +7,6 @@ use App\Modules\Core\Models\Site;
 use App\Modules\Core\Settings\AppearanceSettings;
 use App\Modules\Core\Settings\GeneralSettings;
 use App\Modules\Core\Support\Localization\Locales;
-use App\Modules\Core\Support\Permissions\PermissionRegistry;
 use App\Modules\Core\Support\Sidebar\Sidebar;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
@@ -54,7 +53,7 @@ class HandleInertiaRequests extends Middleware
                 'logoUrl' => Site::current()->logoUrl(),
             ],
             'auth' => [
-                'user' => $user,
+                'user' => $user ? $this->sharedUser($user) : null,
                 'permissions' => fn (): array => $user ? $this->permissionsOf($user) : [],
             ],
             'locale' => app()->getLocale(),
@@ -66,17 +65,34 @@ class HandleInertiaRequests extends Middleware
     }
 
     /**
+     * Get the fields of the signed-in user every page may use.
+     *
+     * The fields are listed explicitly, so columns added to the users table
+     * later are never sent to the browser by accident.
+     *
+     * @return array{id: int, name: string, email: string, locale: string|null, email_verified_at: string|null}
+     */
+    protected function sharedUser(User $user): array
+    {
+        return [
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'locale' => $user->locale,
+            'email_verified_at' => $user->email_verified_at?->toIso8601String(),
+        ];
+    }
+
+    /**
      * Get the names of the permissions the user holds, used to toggle actions on the frontend.
      *
      * @return list<string>
      */
     protected function permissionsOf(User $user): array
     {
-        if ($user->isSuperAdmin()) {
-            return app(PermissionRegistry::class)->names();
-        }
-
-        $permissions = $user->getAllPermissions()->map(fn (Permission $permission): string => $permission->name);
+        $permissions = $user->isSuperAdmin()
+            ? Permission::all()->map(fn (Permission $permission): string => $permission->name)
+            : $user->getAllPermissions()->map(fn (Permission $permission): string => $permission->name);
 
         return array_values($permissions->all());
     }

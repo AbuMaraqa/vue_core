@@ -1,47 +1,29 @@
 <script setup lang="ts">
-import { Link, router } from '@inertiajs/vue3';
-import {
-    KeyRound,
-    Pencil,
-    Plus,
-    ShieldCheck,
-    Trash2,
-    Users,
-} from '@lucide/vue';
-import { ref } from 'vue';
+import KeyRound from '~icons/solar/key-minimalistic-linear';
+import Pencil from '~icons/solar/pen-linear';
+import Plus from '~icons/solar/add-linear';
+import ShieldCheck from '~icons/solar/shield-check-linear';
+import Trash2 from '~icons/solar/trash-bin-minimalistic-linear';
+import Users from '~icons/solar/users-group-rounded-linear';
 import BaseBadge from '@/components/base/BaseBadge.vue';
 import BaseButton from '@/components/base/BaseButton.vue';
+import BaseIconButton from '@/components/base/BaseIconButton.vue';
 import ConfirmDialog from '@/components/common/ConfirmDialog.vue';
 import PageHeader from '@/components/common/PageHeader.vue';
+import { useConfirmDelete } from '@/composables/useConfirmDelete';
 import { usePermissions } from '@/composables/usePermissions';
 import { useTranslations } from '@/composables/useTranslations';
 import { create, destroy, edit } from '@/routes/admin/roles';
-import type { Role } from '@/types';
+import type { Resource, Role } from '@/types';
 
 defineProps<{
-    roles: { data: Role[] };
+    roles: Resource<Role[]>;
 }>();
 
 const { t } = useTranslations();
 const { can } = usePermissions();
 
-const roleToDelete = ref<Role | null>(null);
-const isDeleting = ref(false);
-
-function deleteRole(): void {
-    if (!roleToDelete.value) {
-        return;
-    }
-
-    router.visit(destroy({ role: roleToDelete.value.id }), {
-        preserveScroll: true,
-        onStart: () => (isDeleting.value = true),
-        onFinish: () => {
-            isDeleting.value = false;
-            roleToDelete.value = null;
-        },
-    });
-}
+const deletion = useConfirmDelete((role: Role) => destroy({ role: role.id }));
 </script>
 
 <template>
@@ -51,7 +33,10 @@ function deleteRole(): void {
             :breadcrumbs="[{ title: t('Roles & Permissions') }]"
         >
             <template #actions>
-                <BaseButton v-if="can('roles.create')" :href="create()">
+                <BaseButton
+                    v-if="can('Roles And Permissions Create')"
+                    :href="create()"
+                >
                     <Plus class="size-5" />
                     {{ t('Create role') }}
                 </BaseButton>
@@ -90,23 +75,21 @@ function deleteRole(): void {
                     </div>
 
                     <div class="flex items-center gap-1">
-                        <Link
+                        <BaseIconButton
                             v-if="role.can.update"
                             :href="edit({ role: role.id })"
-                            :title="t('Edit')"
-                            class="flex size-9 items-center justify-center rounded-lg text-gray-500 hover:bg-gray-100 hover:text-brand-500 dark:text-gray-400 dark:hover:bg-white/5"
+                            :label="t('Edit')"
                         >
-                            <Pencil class="size-4" />
-                        </Link>
-                        <button
+                            <Pencil />
+                        </BaseIconButton>
+                        <BaseIconButton
                             v-if="role.can.delete"
-                            type="button"
-                            :title="t('Delete')"
-                            class="flex size-9 items-center justify-center rounded-lg text-gray-500 hover:bg-error-50 hover:text-error-500 dark:text-gray-400 dark:hover:bg-error-500/15"
-                            @click="roleToDelete = role"
+                            color="danger"
+                            :label="t('Delete')"
+                            @click="deletion.ask(role)"
                         >
-                            <Trash2 class="size-4" />
-                        </button>
+                            <Trash2 />
+                        </BaseIconButton>
                     </div>
                 </div>
 
@@ -134,17 +117,17 @@ function deleteRole(): void {
         </div>
 
         <ConfirmDialog
-            :open="roleToDelete !== null"
+            :open="deletion.target !== null"
             :title="t('Delete role')"
             :message="
                 t(
                     'Are you sure you want to delete :name? This action cannot be undone.',
-                    { name: roleToDelete?.name ?? '' },
+                    { name: deletion.target?.name ?? '' },
                 )
             "
-            :processing="isDeleting"
-            @update:open="(open) => !open && (roleToDelete = null)"
-            @confirm="deleteRole"
+            :processing="deletion.processing"
+            @update:open="(open) => !open && deletion.cancel()"
+            @confirm="deletion.confirm"
         />
     </div>
 </template>

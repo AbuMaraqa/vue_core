@@ -6,11 +6,11 @@ import BaseCard from '@/components/base/BaseCard.vue';
 import BaseInputError from '@/components/base/BaseInputError.vue';
 import BaseLabel from '@/components/base/BaseLabel.vue';
 import PageHeader from '@/components/common/PageHeader.vue';
-import type { Props as ManagePasskeysProps } from '@/components/ManagePasskeys.vue';
-import ManagePasskeys from '@/components/ManagePasskeys.vue';
-import type { Props as ManageTwoFactorProps } from '@/components/ManageTwoFactor.vue';
-import ManageTwoFactor from '@/components/ManageTwoFactor.vue';
-import PasswordInput from '@/components/PasswordInput.vue';
+import type { Props as ManagePasskeysProps } from '@/components/account/ManagePasskeys.vue';
+import ManagePasskeys from '@/components/account/ManagePasskeys.vue';
+import type { Props as ManageTwoFactorProps } from '@/components/account/ManageTwoFactor.vue';
+import ManageTwoFactor from '@/components/account/ManageTwoFactor.vue';
+import BasePasswordInput from '@/components/base/BasePasswordInput.vue';
 import { useTranslations } from '@/composables/useTranslations';
 
 // oxfmt-ignore
@@ -57,7 +57,7 @@ const { t } = useTranslations();
                             <BaseLabel for="current_password" required>
                                 {{ t('Current password') }}
                             </BaseLabel>
-                            <PasswordInput
+                            <BasePasswordInput
                                 id="current_password"
                                 name="current_password"
                                 autocomplete="current-password"
@@ -71,7 +71,7 @@ const { t } = useTranslations();
                             <BaseLabel for="password" required>
                                 {{ t('New password') }}
                             </BaseLabel>
-                            <PasswordInput
+                            <BasePasswordInput
                                 id="password"
                                 name="password"
                                 autocomplete="new-password"
@@ -84,7 +84,7 @@ const { t } = useTranslations();
                             <BaseLabel for="password_confirmation" required>
                                 {{ t('Confirm password') }}
                             </BaseLabel>
-                            <PasswordInput
+                            <BasePasswordInput
                                 id="password_confirmation"
                                 name="password_confirmation"
                                 autocomplete="new-password"

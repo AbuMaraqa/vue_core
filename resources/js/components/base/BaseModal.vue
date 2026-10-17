@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { X } from '@lucide/vue';
+import X from '~icons/solar/close-linear';
 import { onKeyStroke } from '@vueuse/core';
 
 withDefaults(

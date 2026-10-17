@@ -1,20 +1,24 @@
 <script setup lang="ts">
 import { router } from '@inertiajs/vue3';
-import { FileText, Search, Upload, X } from '@lucide/vue';
-import { watchDebounced } from '@vueuse/core';
+import FileText from '~icons/solar/document-text-linear';
+import Upload from '~icons/solar/upload-linear';
+import X from '~icons/solar/close-linear';
 import { ref } from 'vue';
 import BaseButton from '@/components/base/BaseButton.vue';
-import BaseInput from '@/components/base/BaseInput.vue';
 import BaseSelect from '@/components/base/BaseSelect.vue';
 import ConfirmDialog from '@/components/common/ConfirmDialog.vue';
+import DataCard from '@/components/common/DataCard.vue';
 import EmptyState from '@/components/common/EmptyState.vue';
 import PageHeader from '@/components/common/PageHeader.vue';
-import TablePagination from '@/components/common/TablePagination.vue';
+import SearchInput from '@/components/common/SearchInput.vue';
 import MediaDetails from '@/components/media/MediaDetails.vue';
 import MediaUpload from '@/components/media/MediaUpload.vue';
+import { useConfirmDelete } from '@/composables/useConfirmDelete';
+import { useIndexFilters } from '@/composables/useIndexFilters';
 import { useTranslations } from '@/composables/useTranslations';
 import { destroy, index, store } from '@/routes/admin/media';
 import type { MediaInput, MediaItem, Paginated } from '@/types';
+import { emptyMediaInput } from '@/lib/media';
 
 const props = defineProps<{
     media: Paginated<MediaItem>;
@@ -29,25 +33,11 @@ const props = defineProps<{
 
 const { t } = useTranslations();
 
-const search = ref(props.filters.search ?? '');
-const type = ref(props.filters.type ?? '');
-const collection = ref(props.filters.collection ?? '');
-
-function applyFilters(): void {
-    router.get(
-        index.url(),
-        {
-            filter: {
-                search: search.value || undefined,
-                type: type.value || undefined,
-                collection: collection.value || undefined,
-            },
-        },
-        { preserveState: true, preserveScroll: true, replace: true },
-    );
-}
-
-watchDebounced(search, applyFilters, { debounce: 350 });
+const { filters } = useIndexFilters(index, {
+    search: props.filters.search,
+    type: props.filters.type,
+    collection: props.filters.collection,
+});
 
 /*
  * Uploading: files are sent to a temporary location by the MediaUpload
@@ -55,7 +45,7 @@ watchDebounced(search, applyFilters, { debounce: 350 });
  */
 const isUploading = ref(false);
 const uploaderKey = ref(0);
-const uploads = ref<MediaInput>({ uploads: [], library: [], removed: [] });
+const uploads = ref<MediaInput>(emptyMediaInput());
 
 function saveUploads(): void {
     if (!uploads.value.uploads.length) {
@@ -68,7 +58,7 @@ function saveUploads(): void {
         {
             preserveScroll: true,
             onSuccess: () => {
-                uploads.value = { uploads: [], library: [], removed: [] };
+                uploads.value = emptyMediaInput();
                 uploaderKey.value++;
             },
         },
@@ -80,28 +70,14 @@ function saveUploads(): void {
  */
 const selected = ref<MediaItem | null>(null);
 const detailsOpen = ref(false);
-const itemToDelete = ref<MediaItem | null>(null);
-const isDeleting = ref(false);
+const deletion = useConfirmDelete(
+    (item: MediaItem) => destroy({ media: item.id }),
+    { onSuccess: () => (detailsOpen.value = false) },
+);
 
 function showDetails(item: MediaItem): void {
     selected.value = item;
     detailsOpen.value = true;
-}
-
-function deleteItem(): void {
-    if (!itemToDelete.value) {
-        return;
-    }
-
-    router.visit(destroy({ media: itemToDelete.value.id }), {
-        preserveScroll: true,
-        onStart: () => (isDeleting.value = true),
-        onSuccess: () => (detailsOpen.value = false),
-        onFinish: () => {
-            isDeleting.value = false;
-            itemToDelete.value = null;
-        },
-    });
 }
 </script>
 
@@ -109,7 +85,7 @@ function deleteItem(): void {
     <div>
         <PageHeader
             :title="t('Media Library')"
-            :description="t('Every image and file used across the store.')"
+            :description="t('Every image and file used across the system.')"
             :breadcrumbs="[{ title: t('Media Library') }]"
         >
             <template #actions>
@@ -138,49 +114,30 @@ function deleteItem(): void {
             />
         </div>
 
-        <div
-            class="overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]"
-        >
-            <div
-                class="flex flex-col gap-3 px-5 py-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between"
-            >
-                <div class="relative w-full lg:max-w-sm">
-                    <Search
-                        class="pointer-events-none absolute start-4 top-1/2 size-5 -translate-y-1/2 text-gray-400"
-                    />
-                    <BaseInput
-                        v-model="search"
-                        type="search"
-                        class="ps-12"
-                        :placeholder="t('Search by file name...')"
-                    />
-                </div>
-                <div class="flex w-full flex-col gap-3 sm:flex-row lg:w-auto">
-                    <BaseSelect
-                        v-model="type"
-                        class="sm:w-44"
-                        @change="applyFilters"
+        <DataCard :pagination="media">
+            <template #search>
+                <SearchInput
+                    v-model="filters.search"
+                    :placeholder="t('Search by file name...')"
+                />
+            </template>
+            <template #filters>
+                <BaseSelect v-model="filters.type" class="sm:w-44">
+                    <option value="">{{ t('All types') }}</option>
+                    <option value="image">{{ t('Images') }}</option>
+                    <option value="document">{{ t('Documents') }}</option>
+                </BaseSelect>
+                <BaseSelect v-model="filters.collection" class="sm:w-44">
+                    <option value="">{{ t('All collections') }}</option>
+                    <option
+                        v-for="name in collections"
+                        :key="name"
+                        :value="name"
                     >
-                        <option value="">{{ t('All types') }}</option>
-                        <option value="image">{{ t('Images') }}</option>
-                        <option value="document">{{ t('Documents') }}</option>
-                    </BaseSelect>
-                    <BaseSelect
-                        v-model="collection"
-                        class="sm:w-44"
-                        @change="applyFilters"
-                    >
-                        <option value="">{{ t('All collections') }}</option>
-                        <option
-                            v-for="name in collections"
-                            :key="name"
-                            :value="name"
-                        >
-                            {{ t(name) }}
-                        </option>
-                    </BaseSelect>
-                </div>
-            </div>
+                        {{ t(name) }}
+                    </option>
+                </BaseSelect>
+            </template>
 
             <div
                 v-if="media.data.length"
@@ -220,28 +177,26 @@ function deleteItem(): void {
                 </button>
             </div>
             <EmptyState v-else :message="t('No files found.')" />
-
-            <TablePagination :meta="media.meta" :links="media.links" />
-        </div>
+        </DataCard>
 
         <MediaDetails
             v-model:open="detailsOpen"
             :item="selected"
-            @delete="(item) => (itemToDelete = item)"
+            @delete="(item) => deletion.ask(item)"
         />
 
         <ConfirmDialog
-            :open="itemToDelete !== null"
+            :open="deletion.target !== null"
             :title="t('Delete file')"
             :message="
                 t(
                     'Are you sure you want to delete :name? It will also be removed from every place it is used.',
-                    { name: itemToDelete?.name ?? '' },
+                    { name: deletion.target?.name ?? '' },
                 )
             "
-            :processing="isDeleting"
-            @update:open="(open) => !open && (itemToDelete = null)"
-            @confirm="deleteItem"
+            :processing="deletion.processing"
+            @update:open="(open) => !open && deletion.cancel()"
+            @confirm="deletion.confirm"
         />
     </div>
 </template>

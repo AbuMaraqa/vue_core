@@ -1,7 +1,6 @@
 <?php
 
 use App\Models\User;
-use App\Modules\Core\Enums\Permissions\DashboardPermission;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -22,21 +21,6 @@ pest()->extend(TestCase::class)
 
 /*
 |--------------------------------------------------------------------------
-| Expectations
-|--------------------------------------------------------------------------
-|
-| When you're writing tests, you often need to check that values meet certain conditions. The
-| "expect()" function gives you access to a set of "expectations" methods that you can use
-| to assert different things. Of course, you may extend the Expectation API at any time.
-|
-*/
-
-expect()->extend('toBeOne', function () {
-    return $this->toBe(1);
-});
-
-/*
-|--------------------------------------------------------------------------
 | Functions
 |--------------------------------------------------------------------------
 |
@@ -49,9 +33,9 @@ expect()->extend('toBeOne', function () {
 /**
  * Create a user who can open the admin panel and holds the given permissions.
  */
-function staffMember(UnitEnum|string ...$permissions): User
+function staffMember(string ...$permissions): User
 {
     return User::factory()
-        ->withPermissions(DashboardPermission::Access, ...$permissions)
+        ->withPermissions('Dashboard View', ...$permissions)
         ->create();
 }

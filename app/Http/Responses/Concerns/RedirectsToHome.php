@@ -2,7 +2,6 @@
 
 namespace App\Http\Responses\Concerns;
 
-use App\Modules\Core\Enums\Permissions\DashboardPermission;
 use Illuminate\Http\Request;
 
 trait RedirectsToHome
@@ -12,7 +11,7 @@ trait RedirectsToHome
      */
     protected function homePath(Request $request): string
     {
-        return $request->user()?->can(DashboardPermission::Access)
+        return $request->user()?->can('Dashboard View')
             ? route('admin.dashboard', absolute: false)
             : route('home', absolute: false);
     }

@@ -1,11 +1,9 @@
 <script setup lang="ts">
 import { Deferred } from '@inertiajs/vue3';
-import {
-    Activity as ActivityIcon,
-    ShieldCheck,
-    UserPlus,
-    Users,
-} from '@lucide/vue';
+import ActivityIcon from '~icons/solar/pulse-linear';
+import ShieldCheck from '~icons/solar/shield-check-linear';
+import UserPlus from '~icons/solar/user-plus-rounded-linear';
+import Users from '~icons/solar/users-group-rounded-linear';
 import { defineAsyncComponent } from 'vue';
 import BaseCard from '@/components/base/BaseCard.vue';
 import PageHeader from '@/components/common/PageHeader.vue';
@@ -15,7 +13,7 @@ import StatCard from '@/components/dashboard/StatCard.vue';
 import { useLocale } from '@/composables/useLocale';
 import { useTranslations } from '@/composables/useTranslations';
 import { formatNumber } from '@/lib/format';
-import type { Activity, ManagedUser } from '@/types';
+import type { Activity, ManagedUser, Resource } from '@/types';
 
 // The charting library is large, so it is only downloaded once the chart is rendered.
 const RegistrationsChart = defineAsyncComponent(
@@ -31,8 +29,8 @@ defineProps<{
         activityToday: number;
     };
     registrations?: Array<{ month: string; total: number }>;
-    recentUsers: { data: ManagedUser[] };
-    recentActivity: { data: Activity[] };
+    recentUsers: Resource<ManagedUser[]>;
+    recentActivity: Resource<Activity[]>;
 }>();
 
 const { t } = useTranslations();

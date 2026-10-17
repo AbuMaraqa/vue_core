@@ -11,7 +11,7 @@ use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
 /**
- * The store itself. It owns the media that does not belong to another model.
+ * The site itself. It owns the media that does not belong to another model.
  *
  * @property int $id
  * @property Carbon|null $created_at

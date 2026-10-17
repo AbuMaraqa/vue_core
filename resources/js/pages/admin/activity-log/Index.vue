@@ -1,14 +1,11 @@
 <script setup lang="ts">
-import { router } from '@inertiajs/vue3';
-import { Search } from '@lucide/vue';
-import { watchDebounced } from '@vueuse/core';
-import { ref } from 'vue';
 import BaseBadge from '@/components/base/BaseBadge.vue';
-import BaseInput from '@/components/base/BaseInput.vue';
 import BaseSelect from '@/components/base/BaseSelect.vue';
+import DataCard from '@/components/common/DataCard.vue';
 import EmptyState from '@/components/common/EmptyState.vue';
 import PageHeader from '@/components/common/PageHeader.vue';
-import TablePagination from '@/components/common/TablePagination.vue';
+import SearchInput from '@/components/common/SearchInput.vue';
+import { useIndexFilters } from '@/composables/useIndexFilters';
 import { useLocale } from '@/composables/useLocale';
 import { useTranslations } from '@/composables/useTranslations';
 import { eventColor } from '@/lib/activity';
@@ -31,25 +28,11 @@ const { locale } = useLocale();
 
 const events = ['created', 'updated', 'deleted'];
 
-const search = ref(props.filters.search ?? '');
-const event = ref(props.filters.event ?? '');
-const logName = ref(props.filters.log_name ?? '');
-
-function applyFilters(): void {
-    router.get(
-        index.url(),
-        {
-            filter: {
-                search: search.value || undefined,
-                event: event.value || undefined,
-                log_name: logName.value || undefined,
-            },
-        },
-        { preserveState: true, preserveScroll: true, replace: true },
-    );
-}
-
-watchDebounced(search, applyFilters, { debounce: 350 });
+const { filters } = useIndexFilters(index, {
+    search: props.filters.search,
+    event: props.filters.event,
+    log_name: props.filters.log_name,
+});
 
 function changedAttributes(activity: Activity): string[] {
     return Object.keys(activity.changes?.attributes ?? {});
@@ -64,54 +47,27 @@ function changedAttributes(activity: Activity): string[] {
             :breadcrumbs="[{ title: t('Activity Log') }]"
         />
 
-        <div
-            class="overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]"
-        >
-            <div
-                class="flex flex-col gap-3 px-5 py-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between"
-            >
-                <div class="relative w-full lg:max-w-sm">
-                    <Search
-                        class="pointer-events-none absolute start-4 top-1/2 size-5 -translate-y-1/2 text-gray-400"
-                    />
-                    <BaseInput
-                        v-model="search"
-                        type="search"
-                        class="ps-12"
-                        :placeholder="t('Search...')"
-                    />
-                </div>
-                <div class="flex w-full flex-col gap-3 sm:flex-row lg:w-auto">
-                    <BaseSelect
-                        v-model="logName"
-                        class="sm:w-44"
-                        @change="applyFilters"
-                    >
-                        <option value="">{{ t('All logs') }}</option>
-                        <option
-                            v-for="name in logNames"
-                            :key="name"
-                            :value="name"
-                        >
-                            {{ t(name) }}
-                        </option>
-                    </BaseSelect>
-                    <BaseSelect
-                        v-model="event"
-                        class="sm:w-44"
-                        @change="applyFilters"
-                    >
-                        <option value="">{{ t('All events') }}</option>
-                        <option
-                            v-for="item in events"
-                            :key="item"
-                            :value="item"
-                        >
-                            {{ t(item) }}
-                        </option>
-                    </BaseSelect>
-                </div>
-            </div>
+        <DataCard :pagination="activities">
+            <template #search>
+                <SearchInput
+                    v-model="filters.search"
+                    :placeholder="t('Search...')"
+                />
+            </template>
+            <template #filters>
+                <BaseSelect v-model="filters.log_name" class="sm:w-44">
+                    <option value="">{{ t('All logs') }}</option>
+                    <option v-for="name in logNames" :key="name" :value="name">
+                        {{ t(name) }}
+                    </option>
+                </BaseSelect>
+                <BaseSelect v-model="filters.event" class="sm:w-44">
+                    <option value="">{{ t('All events') }}</option>
+                    <option v-for="item in events" :key="item" :value="item">
+                        {{ t(item) }}
+                    </option>
+                </BaseSelect>
+            </template>
 
             <div class="custom-scrollbar max-w-full overflow-x-auto">
                 <table v-if="activities.data.length" class="min-w-full">
@@ -199,11 +155,6 @@ function changedAttributes(activity: Activity): string[] {
                 </table>
                 <EmptyState v-else :message="t('No activity found.')" />
             </div>
-
-            <TablePagination
-                :meta="activities.meta"
-                :links="activities.links"
-            />
-        </div>
+        </DataCard>
     </div>
 </template>

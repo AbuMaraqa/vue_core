@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ChevronDown } from '@lucide/vue';
+import ChevronDown from '~icons/solar/alt-arrow-down-linear';
 import { computed, useAttrs } from 'vue';
 
 defineOptions({ inheritAttrs: false });

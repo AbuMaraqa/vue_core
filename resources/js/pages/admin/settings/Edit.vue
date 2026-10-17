@@ -3,17 +3,17 @@ import { useForm, usePage } from '@inertiajs/vue3';
 import { computed, onUnmounted, ref, watch } from 'vue';
 import BaseButton from '@/components/base/BaseButton.vue';
 import BaseCard from '@/components/base/BaseCard.vue';
+import BaseField from '@/components/base/BaseField.vue';
 import BaseInput from '@/components/base/BaseInput.vue';
-import BaseInputError from '@/components/base/BaseInputError.vue';
-import BaseLabel from '@/components/base/BaseLabel.vue';
 import BaseSelect from '@/components/base/BaseSelect.vue';
 import BaseTextarea from '@/components/base/BaseTextarea.vue';
 import PageHeader from '@/components/common/PageHeader.vue';
 import AppearanceSettings from '@/components/settings/AppearanceSettings.vue';
-import { applyTheme } from '@/composables/useTheme';
+import { applyTheme } from '@/composables/useBrandTheme';
 import { useTranslations } from '@/composables/useTranslations';
+import { emptyMediaInput } from '@/lib/media';
 import { update } from '@/routes/admin/settings';
-import type { FontOption, Locale, MediaInput, MediaItem } from '@/types';
+import type { FontOption, Locale, MediaItem, Resource } from '@/types';
 
 const props = defineProps<{
     settings: {
@@ -33,7 +33,7 @@ const props = defineProps<{
     };
     locales: Locale[];
     fonts: FontOption[];
-    logo: { data: MediaItem } | null;
+    logo: Resource<MediaItem> | null;
     canUpdate: boolean;
 }>();
 
@@ -44,7 +44,7 @@ const form = useForm({
     general: { ...props.settings.general },
     localization: { ...props.settings.localization },
     appearance: { ...props.settings.appearance },
-    logo: { uploads: [], library: [], removed: [] } as MediaInput,
+    logo: emptyMediaInput(),
 });
 
 const logoUploading = ref(false);
@@ -82,7 +82,7 @@ function submit(): void {
         preserveScroll: true,
         onSuccess: () => {
             // The saved logo is now the current one, so start the field afresh.
-            form.logo = { uploads: [], library: [], removed: [] };
+            form.logo = emptyMediaInput();
             logoFieldKey.value++;
         },
     });
@@ -100,13 +100,17 @@ function submit(): void {
             <fieldset :disabled="!canUpdate" class="space-y-6">
                 <BaseCard
                     :title="t('General')"
-                    :description="t('Basic information about your store.')"
+                    :description="
+                        t('Basic information about your organization.')
+                    "
                 >
                     <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                        <div>
-                            <BaseLabel for="site_name" required>
-                                {{ t('Site name') }}
-                            </BaseLabel>
+                        <BaseField
+                            :label="t('Site name')"
+                            for="site_name"
+                            required
+                            :error="form.errors['general.site_name']"
+                        >
                             <BaseInput
                                 id="site_name"
                                 v-model="form.general.site_name"
@@ -114,14 +118,12 @@ function submit(): void {
                                     Boolean(form.errors['general.site_name'])
                                 "
                             />
-                            <BaseInputError
-                                :message="form.errors['general.site_name']"
-                            />
-                        </div>
-                        <div>
-                            <BaseLabel for="contact_email">
-                                {{ t('Contact email') }}
-                            </BaseLabel>
+                        </BaseField>
+                        <BaseField
+                            :label="t('Contact email')"
+                            for="contact_email"
+                            :error="form.errors['general.contact_email']"
+                        >
                             <BaseInput
                                 id="contact_email"
                                 v-model="form.general.contact_email"
@@ -132,14 +134,12 @@ function submit(): void {
                                     )
                                 "
                             />
-                            <BaseInputError
-                                :message="form.errors['general.contact_email']"
-                            />
-                        </div>
-                        <div>
-                            <BaseLabel for="contact_phone">
-                                {{ t('Contact phone') }}
-                            </BaseLabel>
+                        </BaseField>
+                        <BaseField
+                            :label="t('Contact phone')"
+                            for="contact_phone"
+                            :error="form.errors['general.contact_phone']"
+                        >
                             <BaseInput
                                 id="contact_phone"
                                 v-model="form.general.contact_phone"
@@ -150,14 +150,13 @@ function submit(): void {
                                     )
                                 "
                             />
-                            <BaseInputError
-                                :message="form.errors['general.contact_phone']"
-                            />
-                        </div>
-                        <div class="sm:col-span-2">
-                            <BaseLabel for="site_description">
-                                {{ t('Site description') }}
-                            </BaseLabel>
+                        </BaseField>
+                        <BaseField
+                            class="sm:col-span-2"
+                            :label="t('Site description')"
+                            for="site_description"
+                            :error="form.errors['general.site_description']"
+                        >
                             <BaseTextarea
                                 id="site_description"
                                 v-model="form.general.site_description"
@@ -167,12 +166,7 @@ function submit(): void {
                                     )
                                 "
                             />
-                            <BaseInputError
-                                :message="
-                                    form.errors['general.site_description']
-                                "
-                            />
-                        </div>
+                        </BaseField>
                     </div>
                 </BaseCard>
 
@@ -185,10 +179,12 @@ function submit(): void {
                     "
                 >
                     <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                        <div>
-                            <BaseLabel for="default_locale" required>
-                                {{ t('Default language') }}
-                            </BaseLabel>
+                        <BaseField
+                            :label="t('Default language')"
+                            for="default_locale"
+                            required
+                            :error="form.errors['localization.default_locale']"
+                        >
                             <BaseSelect
                                 id="default_locale"
                                 v-model="form.localization.default_locale"
@@ -208,12 +204,7 @@ function submit(): void {
                                     {{ locale.native }}
                                 </option>
                             </BaseSelect>
-                            <BaseInputError
-                                :message="
-                                    form.errors['localization.default_locale']
-                                "
-                            />
-                        </div>
+                        </BaseField>
                     </div>
                 </BaseCard>
 

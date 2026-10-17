@@ -1,7 +1,6 @@
 <?php
 
 use App\Models\User;
-use App\Modules\Core\Enums\Permissions\DashboardPermission;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Laravel\Fortify\Features;
@@ -26,7 +25,7 @@ test('users can authenticate using the login screen', function () {
 });
 
 test('staff members are redirected to the admin dashboard after authenticating', function () {
-    $user = User::factory()->withPermissions(DashboardPermission::Access)->create();
+    $user = User::factory()->withPermissions('Dashboard View')->create();
 
     $response = $this->post(route('login.store'), [
         'email' => $user->email,

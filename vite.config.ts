@@ -4,6 +4,7 @@ import tailwindcss from '@tailwindcss/vite';
 import vue from '@vitejs/plugin-vue';
 import laravel from 'laravel-vite-plugin';
 import { bunny } from 'laravel-vite-plugin/fonts';
+import icons from 'unplugin-icons/vite';
 import { defineConfig, lazyPlugins } from 'vite-plus';
 
 export default defineConfig({
@@ -44,6 +45,11 @@ export default defineConfig({
         wayfinder({
             formVariants: true,
         }),
+        // Solar icons, imported as components from `~icons/solar/<name>`.
+        icons({
+            compiler: 'vue3',
+            scale: 1,
+        }),
     ]),
     server: {
         watch: {
@@ -83,6 +89,7 @@ export default defineConfig({
         ignorePatterns: [
             '.github/**',
             'composer.json',
+            'skills-lock.json',
             'resources/js/components/ui/*',
             'resources/views/mail/*',
         ],

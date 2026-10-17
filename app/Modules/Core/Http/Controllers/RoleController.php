@@ -8,11 +8,12 @@ use App\Modules\Core\Data\RoleData;
 use App\Modules\Core\Http\Requests\Roles\StoreRoleRequest;
 use App\Modules\Core\Http\Requests\Roles\UpdateRoleRequest;
 use App\Modules\Core\Http\Resources\RoleResource;
-use App\Modules\Core\Support\Permissions\PermissionRegistry;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response;
+use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
 class RoleController extends Controller
@@ -31,12 +32,12 @@ class RoleController extends Controller
         ]);
     }
 
-    public function create(PermissionRegistry $permissions): Response
+    public function create(): Response
     {
         Gate::authorize('create', Role::class);
 
         return Inertia::render('admin/roles/Create', [
-            'permissionGroups' => $permissions->grouped(),
+            'permissionGroups' => $this->permissionGroups(),
         ]);
     }
 
@@ -49,13 +50,13 @@ class RoleController extends Controller
         return to_route('admin.roles.index');
     }
 
-    public function edit(Role $role, PermissionRegistry $permissions): Response
+    public function edit(Role $role): Response
     {
         Gate::authorize('update', $role);
 
         return Inertia::render('admin/roles/Edit', [
             'role' => RoleResource::make($role->load('permissions')),
-            'permissionGroups' => $permissions->grouped(),
+            'permissionGroups' => $this->permissionGroups(),
         ]);
     }
 
@@ -79,5 +80,24 @@ class RoleController extends Controller
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Role deleted.')]);
 
         return to_route('admin.roles.index');
+    }
+
+    /**
+     * Get the permissions grouped by module, in the order of the PermissionSeeder.
+     *
+     * @return list<array{module: string, permissions: list<string>}>
+     */
+    protected function permissionGroups(): array
+    {
+        $groups = Permission::query()
+            ->orderBy('id')
+            ->get()
+            ->groupBy(fn (Permission $permission): string => $permission->module_name ?? 'Other')
+            ->map(fn (Collection $permissions, string $module): array => [
+                'module' => $module,
+                'permissions' => array_values($permissions->map(fn (Permission $permission): string => $permission->name)->all()),
+            ]);
+
+        return array_values($groups->all());
     }
 }

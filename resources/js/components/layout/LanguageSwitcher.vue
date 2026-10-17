@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { Check, Languages } from '@lucide/vue';
+import Check from '~icons/solar/check-linear';
+import Languages from '~icons/solar/translation-linear';
 import { onClickOutside } from '@vueuse/core';
 import { ref, useTemplateRef } from 'vue';
 import { useLocale } from '@/composables/useLocale';

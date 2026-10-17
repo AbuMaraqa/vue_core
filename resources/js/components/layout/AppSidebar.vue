@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Link, usePage } from '@inertiajs/vue3';
-import { Ellipsis } from '@lucide/vue';
+import Ellipsis from '~icons/solar/menu-dots-linear';
 import { watch } from 'vue';
 import AppLogo from '@/components/layout/AppLogo.vue';
 import AppSidebarNode from '@/components/layout/AppSidebarNode.vue';

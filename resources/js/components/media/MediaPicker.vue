@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { useHttp } from '@inertiajs/vue3';
-import { Check, LoaderCircle, Search } from '@lucide/vue';
+import Check from '~icons/solar/check-linear';
+import LoaderCircle from '~icons/solar/loader-linear';
+import Search from '~icons/solar/magnifier-linear';
 import { watchDebounced } from '@vueuse/core';
 import { ref, watch } from 'vue';
 import BaseButton from '@/components/base/BaseButton.vue';

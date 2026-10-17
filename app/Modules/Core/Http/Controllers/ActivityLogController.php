@@ -3,7 +3,6 @@
 namespace App\Modules\Core\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Modules\Core\Enums\Permissions\ActivityLogPermission;
 use App\Modules\Core\Http\Resources\ActivityResource;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
@@ -21,7 +20,7 @@ class ActivityLogController extends Controller
      */
     public function __invoke(Request $request): Response
     {
-        Gate::authorize(ActivityLogPermission::ViewAny);
+        Gate::authorize('Activity Log View List');
 
         $activities = QueryBuilder::for(Activity::query()->with('causer'))
             ->allowedFilters(

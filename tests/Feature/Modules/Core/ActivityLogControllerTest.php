@@ -1,7 +1,6 @@
 <?php
 
 use App\Models\User;
-use App\Modules\Core\Enums\Permissions\ActivityLogPermission;
 use Inertia\Testing\AssertableInertia as Assert;
 
 test('staff members without the permission are forbidden', function () {
@@ -14,7 +13,7 @@ test('activities can be filtered by event', function () {
     $user = User::factory()->create();
     $user->update(['name' => 'Changed Name']);
 
-    $this->actingAs(staffMember(ActivityLogPermission::ViewAny))
+    $this->actingAs(staffMember('Activity Log View List'))
         ->get(route('admin.activity-log.index', ['filter' => ['event' => 'updated']]))
         ->assertOk()
         ->assertInertia(fn (Assert $page) => $page

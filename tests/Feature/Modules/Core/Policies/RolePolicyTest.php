@@ -1,7 +1,6 @@
 <?php
 
 use App\Models\User;
-use App\Modules\Core\Enums\Permissions\RolePermission;
 use App\Modules\Core\Enums\UserRole;
 use Spatie\Permission\Models\Role;
 
@@ -19,12 +18,12 @@ test('system roles can be edited but never deleted', function (UserRole $systemR
         ->and($superAdmin->can('delete', $role))->toBeFalse();
 })->with([UserRole::Admin, UserRole::Customer]);
 
-test('custom roles require the matching permission', function (string $ability, RolePermission $permission) {
+test('custom roles require the matching permission', function (string $ability, string $permission) {
     $role = Role::findOrCreate('Editor', 'web');
 
     expect(User::factory()->withPermissions($permission)->create()->can($ability, $role))->toBeTrue()
         ->and(User::factory()->create()->can($ability, $role))->toBeFalse();
 })->with([
-    'update' => ['update', RolePermission::Update],
-    'delete' => ['delete', RolePermission::Delete],
+    'update' => ['update', 'Roles And Permissions Update'],
+    'delete' => ['delete', 'Roles And Permissions Delete'],
 ]);

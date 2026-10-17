@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { Link, router, usePage } from '@inertiajs/vue3';
-import { ChevronDown, LogOut, ShieldCheck, UserRound } from '@lucide/vue';
+import ChevronDown from '~icons/solar/alt-arrow-down-linear';
+import LogOut from '~icons/solar/logout-2-linear';
+import ShieldCheck from '~icons/solar/shield-check-linear';
+import UserRound from '~icons/solar/user-rounded-linear';
 import { onClickOutside } from '@vueuse/core';
 import { ref, useTemplateRef } from 'vue';
 import BaseAvatar from '@/components/base/BaseAvatar.vue';

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Link, usePage } from '@inertiajs/vue3';
-import AppLogoIcon from '@/components/AppLogoIcon.vue';
+import AppLogoIcon from '@/components/layout/AppLogoIcon.vue';
 import LanguageSwitcher from '@/components/layout/LanguageSwitcher.vue';
 import ThemeToggler from '@/components/layout/ThemeToggler.vue';
 import { Toaster } from '@/components/ui/sonner';
@@ -73,7 +73,7 @@ const { t } = useTranslations();
                                 v-if="page.props.theme.logoUrl"
                                 :src="page.props.theme.logoUrl"
                                 :alt="page.props.name"
-                                class="h-16 max-w-[240px] rounded-xl bg-white/95 object-contain p-2"
+                                class="size-12 rounded-xl bg-white/95 object-contain p-1.5"
                             />
                             <span
                                 v-else
@@ -88,7 +88,7 @@ const { t } = useTranslations();
                         <p class="text-center text-gray-400 dark:text-white/60">
                             {{
                                 t(
-                                    'Manage your store from one powerful dashboard.',
+                                    'Manage your business from one powerful dashboard.',
                                 )
                             }}
                         </p>

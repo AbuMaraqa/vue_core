@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { Moon, Sun } from '@lucide/vue';
+import Moon from '~icons/solar/moon-linear';
+import Sun from '~icons/solar/sun-linear';
 import { useAppearance } from '@/composables/useAppearance';
 import { useTranslations } from '@/composables/useTranslations';
 

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { usePage } from '@inertiajs/vue3';
-import AppLogoIcon from '@/components/AppLogoIcon.vue';
+import AppLogoIcon from '@/components/layout/AppLogoIcon.vue';
 
 withDefaults(
     defineProps<{
@@ -18,23 +18,19 @@ const page = usePage();
             v-if="page.props.theme.logoUrl"
             :src="page.props.theme.logoUrl"
             :alt="page.props.name"
-            :class="[
-                'object-contain',
-                collapsed ? 'size-9' : 'h-9 max-w-[180px]',
-            ]"
+            class="size-9 shrink-0 object-contain"
         />
-        <template v-else>
-            <span
-                class="flex size-9 shrink-0 items-center justify-center rounded-lg bg-brand-500 text-white"
-            >
-                <AppLogoIcon class="size-5 fill-current" />
-            </span>
-            <span
-                v-if="!collapsed"
-                class="truncate text-lg font-semibold text-gray-800 dark:text-white/90"
-            >
-                {{ page.props.name }}
-            </span>
-        </template>
+        <span
+            v-else
+            class="flex size-9 shrink-0 items-center justify-center rounded-lg bg-brand-500 text-white"
+        >
+            <AppLogoIcon class="size-5 fill-current" />
+        </span>
+        <span
+            v-if="!collapsed"
+            class="truncate text-lg font-semibold text-gray-800 dark:text-white/90"
+        >
+            {{ page.props.name }}
+        </span>
     </span>
 </template>

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { InertiaLinkProps } from '@inertiajs/vue3';
 import { Link } from '@inertiajs/vue3';
-import { LoaderCircle } from '@lucide/vue';
+import LoaderCircle from '~icons/solar/loader-linear';
 import { computed } from 'vue';
 
 type Props = {

@@ -3,7 +3,6 @@
 namespace App\Modules\Core\Http\Requests\Settings;
 
 use App\Modules\Core\Enums\FontFamily;
-use App\Modules\Core\Enums\Permissions\SettingPermission;
 use App\Modules\Core\Http\Requests\Concerns\ValidatesMediaInput;
 use App\Modules\Core\Models\Site;
 use App\Modules\Core\Support\Localization\Locales;
@@ -20,7 +19,7 @@ class UpdateSettingsRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()->can(SettingPermission::Update);
+        return $this->user()->can('Setting Update');
     }
 
     /**

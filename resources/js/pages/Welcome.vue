@@ -1,11 +1,9 @@
 <script setup lang="ts">
 import { Head, Link, usePage } from '@inertiajs/vue3';
-import {
-    ArrowRight,
-    LayoutDashboard,
-    Languages,
-    ShieldCheck,
-} from '@lucide/vue';
+import ArrowRight from '~icons/solar/arrow-right-linear';
+import LayoutDashboard from '~icons/solar/widget-linear';
+import Languages from '~icons/solar/translation-linear';
+import ShieldCheck from '~icons/solar/shield-check-linear';
 import AppLogo from '@/components/layout/AppLogo.vue';
 import LanguageSwitcher from '@/components/layout/LanguageSwitcher.vue';
 import ThemeToggler from '@/components/layout/ThemeToggler.vue';
@@ -53,7 +51,7 @@ const features = [
                 <ThemeToggler />
                 <template v-if="page.props.auth.user">
                     <Link
-                        v-if="can('dashboard.access')"
+                        v-if="can('Dashboard View')"
                         :href="dashboard()"
                         class="rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600"
                     >
@@ -93,7 +91,7 @@ const features = [
                     {{ page.props.name }}
                 </h1>
                 <p class="mt-4 text-lg text-gray-500 dark:text-gray-400">
-                    {{ t('Manage your store from one powerful dashboard.') }}
+                    {{ t('Manage your business from one powerful dashboard.') }}
                 </p>
                 <Link
                     :href="page.props.auth.user ? dashboard() : login()"

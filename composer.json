@@ -1,13 +1,13 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "laravel/vue-starter-kit",
+    "name": "motasem/core",
     "type": "project",
-    "description": "The skeleton application for the Laravel framework.",
+    "description": "A modular, bilingual (Arabic/English) Laravel + Inertia + Vue admin core.",
     "keywords": [
         "laravel",
         "framework"
     ],
-    "license": "MIT",
+    "license": "proprietary",
     "require": {
         "php": "^8.3",
         "astrotomic/laravel-translatable": "^11.17",

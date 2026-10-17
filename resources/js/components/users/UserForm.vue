@@ -3,9 +3,9 @@ import { useForm } from '@inertiajs/vue3';
 import BaseButton from '@/components/base/BaseButton.vue';
 import BaseCard from '@/components/base/BaseCard.vue';
 import BaseCheckbox from '@/components/base/BaseCheckbox.vue';
+import BaseField from '@/components/base/BaseField.vue';
 import BaseInput from '@/components/base/BaseInput.vue';
 import BaseInputError from '@/components/base/BaseInputError.vue';
-import BaseLabel from '@/components/base/BaseLabel.vue';
 import { useTranslations } from '@/composables/useTranslations';
 import { index, store, update } from '@/routes/admin/users';
 import type { ManagedUser } from '@/types';
@@ -43,22 +43,25 @@ function submit(): void {
                 "
             >
                 <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                    <div>
-                        <BaseLabel for="name" required>{{
-                            t('Name')
-                        }}</BaseLabel>
+                    <BaseField
+                        :label="t('Name')"
+                        for="name"
+                        required
+                        :error="form.errors.name"
+                    >
                         <BaseInput
                             id="name"
                             v-model="form.name"
                             autocomplete="name"
                             :invalid="Boolean(form.errors.name)"
                         />
-                        <BaseInputError :message="form.errors.name" />
-                    </div>
-                    <div>
-                        <BaseLabel for="email" required>{{
-                            t('Email')
-                        }}</BaseLabel>
+                    </BaseField>
+                    <BaseField
+                        :label="t('Email')"
+                        for="email"
+                        required
+                        :error="form.errors.email"
+                    >
                         <BaseInput
                             id="email"
                             v-model="form.email"
@@ -66,12 +69,13 @@ function submit(): void {
                             autocomplete="email"
                             :invalid="Boolean(form.errors.email)"
                         />
-                        <BaseInputError :message="form.errors.email" />
-                    </div>
-                    <div>
-                        <BaseLabel for="password" :required="!user">
-                            {{ t('Password') }}
-                        </BaseLabel>
+                    </BaseField>
+                    <BaseField
+                        :label="t('Password')"
+                        for="password"
+                        :required="!user"
+                        :error="form.errors.password"
+                    >
                         <BaseInput
                             id="password"
                             v-model="form.password"
@@ -86,22 +90,19 @@ function submit(): void {
                             "
                             :invalid="Boolean(form.errors.password)"
                         />
-                        <BaseInputError :message="form.errors.password" />
-                    </div>
-                    <div>
-                        <BaseLabel
-                            for="password_confirmation"
-                            :required="!user"
-                        >
-                            {{ t('Confirm password') }}
-                        </BaseLabel>
+                    </BaseField>
+                    <BaseField
+                        :label="t('Confirm password')"
+                        for="password_confirmation"
+                        :required="!user"
+                    >
                         <BaseInput
                             id="password_confirmation"
                             v-model="form.password_confirmation"
                             type="password"
                             autocomplete="new-password"
                         />
-                    </div>
+                    </BaseField>
                 </div>
             </BaseCard>
         </div>

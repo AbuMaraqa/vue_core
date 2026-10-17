@@ -5,6 +5,16 @@ export type PaginationLink = {
     active: boolean;
 };
 
+/**
+ * A single API Resource, e.g. `UserResource::make($user)`.
+ */
+export type Resource<T> = {
+    data: T;
+};
+
+/**
+ * A paginated API Resource collection, e.g. `UserResource::collection($query->paginate())`.
+ */
 export type Paginated<T> = {
     data: T[];
     links: {
@@ -25,6 +35,9 @@ export type Paginated<T> = {
     };
 };
 
+/**
+ * What the signed-in user may do with a record, computed by its policy.
+ */
 export type ResourceAbilities = {
     update: boolean;
     delete: boolean;
@@ -35,8 +48,8 @@ export type ManagedUser = {
     name: string;
     email: string;
     email_verified_at: string | null;
-    roles: string[];
-    created_at: string;
+    roles?: string[];
+    created_at: string | null;
     can: ResourceAbilities;
 };
 
@@ -52,9 +65,8 @@ export type Role = {
 };
 
 export type PermissionGroup = {
-    key: string;
-    label: string;
-    permissions: Array<{ name: string; label: string }>;
+    module: string;
+    permissions: string[];
 };
 
 export type Activity = {
@@ -69,5 +81,5 @@ export type Activity = {
         attributes?: Record<string, unknown>;
         old?: Record<string, unknown>;
     } | null;
-    created_at: string;
+    created_at: string | null;
 };

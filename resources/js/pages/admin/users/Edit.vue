@@ -3,10 +3,10 @@ import PageHeader from '@/components/common/PageHeader.vue';
 import UserForm from '@/components/users/UserForm.vue';
 import { useTranslations } from '@/composables/useTranslations';
 import { index } from '@/routes/admin/users';
-import type { ManagedUser } from '@/types';
+import type { ManagedUser, Resource } from '@/types';
 
 defineProps<{
-    user: { data: ManagedUser };
+    user: Resource<ManagedUser>;
     roles: string[];
 }>();
 

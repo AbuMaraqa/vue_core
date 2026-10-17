@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import type { LucideIcon } from '@lucide/vue';
-import { ArrowDown, ArrowUp } from '@lucide/vue';
+import type { Component } from 'vue';
+import ArrowDown from '~icons/solar/arrow-down-linear';
+import ArrowUp from '~icons/solar/arrow-up-linear';
 
 defineProps<{
     label: string;
     value: string;
-    icon: LucideIcon;
+    icon: Component;
     change?: number | null;
 }>();
 </script>

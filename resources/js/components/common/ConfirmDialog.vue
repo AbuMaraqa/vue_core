@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { TriangleAlert } from '@lucide/vue';
+import TriangleAlert from '~icons/solar/danger-triangle-linear';
 import BaseButton from '@/components/base/BaseButton.vue';
 import BaseModal from '@/components/base/BaseModal.vue';
 import { useTranslations } from '@/composables/useTranslations';

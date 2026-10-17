@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Modules\Core\Actions\Media\SyncMediaCollection;
 use App\Modules\Core\Data\MediaInputData;
 use App\Modules\Core\Enums\FontFamily;
-use App\Modules\Core\Enums\Permissions\SettingPermission;
 use App\Modules\Core\Http\Requests\Settings\UpdateSettingsRequest;
 use App\Modules\Core\Http\Resources\MediaResource;
 use App\Modules\Core\Models\Site;
@@ -23,7 +22,7 @@ class SettingController extends Controller
 {
     public function edit(GeneralSettings $general, LocalizationSettings $localization, AppearanceSettings $appearance, Locales $locales): Response
     {
-        Gate::authorize(SettingPermission::View);
+        Gate::authorize('Setting View');
 
         $logo = Site::current()->getFirstMedia(Site::LOGO);
 
@@ -39,7 +38,7 @@ class SettingController extends Controller
             'logo' => $logo ? MediaResource::make($logo) : null,
             'locales' => $locales->all(),
             'fonts' => FontFamily::options(),
-            'canUpdate' => Gate::allows(SettingPermission::Update),
+            'canUpdate' => Gate::allows('Setting Update'),
         ]);
     }
 

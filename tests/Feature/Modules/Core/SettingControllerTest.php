@@ -1,7 +1,6 @@
 <?php
 
 use App\Modules\Core\Enums\FontFamily;
-use App\Modules\Core\Enums\Permissions\SettingPermission;
 use App\Modules\Core\Models\Site;
 use App\Modules\Core\Models\TemporaryUpload;
 use App\Modules\Core\Settings\AppearanceSettings;
@@ -37,7 +36,7 @@ test('staff members without the permission are forbidden', function () {
 });
 
 test('the settings screen shows the stored settings', function () {
-    $this->actingAs(staffMember(SettingPermission::View))
+    $this->actingAs(staffMember('Setting View'))
         ->get(route('admin.settings.edit'))
         ->assertOk()
         ->assertInertia(fn (Assert $page) => $page
@@ -49,13 +48,13 @@ test('the settings screen shows the stored settings', function () {
 });
 
 test('viewing settings does not allow changing them', function () {
-    $this->actingAs(staffMember(SettingPermission::View))
+    $this->actingAs(staffMember('Setting View'))
         ->put(route('admin.settings.update'), validSettings())
         ->assertForbidden();
 });
 
 test('settings are saved', function () {
-    $this->actingAs(staffMember(SettingPermission::View, SettingPermission::Update))
+    $this->actingAs(staffMember('Setting View', 'Setting Update'))
         ->put(route('admin.settings.update'), validSettings())
         ->assertRedirect(route('admin.settings.edit'));
 
@@ -66,7 +65,7 @@ test('settings are saved', function () {
 });
 
 test('the chosen font and primary color are applied to every page', function () {
-    $staffMember = staffMember(SettingPermission::View, SettingPermission::Update);
+    $staffMember = staffMember('Setting View', 'Setting Update');
 
     $this->actingAs($staffMember)
         ->put(route('admin.settings.update'), validSettings())
@@ -86,7 +85,7 @@ test('the chosen font and primary color are applied to every page', function () 
 });
 
 test('the appearance values are validated', function (array $appearance, string $field) {
-    $this->actingAs(staffMember(SettingPermission::Update))
+    $this->actingAs(staffMember('Setting Update'))
         ->put(route('admin.settings.update'), validSettings(['appearance' => $appearance]))
         ->assertSessionHasErrors($field);
 })->with([
@@ -102,7 +101,7 @@ describe('logo', function () {
     });
 
     test('an uploaded logo is attached and shared with every page', function () {
-        $staffMember = staffMember(SettingPermission::View, SettingPermission::Update);
+        $staffMember = staffMember('Setting View', 'Setting Update');
         $upload = TemporaryUpload::factory()->image('brand.png')->create(['user_id' => $staffMember->id]);
 
         $this->actingAs($staffMember)
@@ -124,7 +123,7 @@ describe('logo', function () {
     test('an image picked from the media library is copied as the logo', function () {
         $libraryImage = Site::current()->addMedia(UploadedFile::fake()->image('library.png'))->toMediaCollection(Site::LIBRARY);
 
-        $this->actingAs(staffMember(SettingPermission::Update))
+        $this->actingAs(staffMember('Setting Update'))
             ->put(route('admin.settings.update'), validSettings(['logo' => ['library' => [$libraryImage->id]]]))
             ->assertRedirect(route('admin.settings.edit'));
 
@@ -137,7 +136,7 @@ describe('logo', function () {
     test('the logo can be removed', function () {
         $logo = Site::current()->addMedia(UploadedFile::fake()->image('brand.png'))->toMediaCollection(Site::LOGO);
 
-        $this->actingAs(staffMember(SettingPermission::Update))
+        $this->actingAs(staffMember('Setting Update'))
             ->put(route('admin.settings.update'), validSettings(['logo' => ['removed' => [$logo->id]]]))
             ->assertRedirect(route('admin.settings.edit'));
 
@@ -145,7 +144,7 @@ describe('logo', function () {
     });
 
     test('files that are not images are rejected', function () {
-        $staffMember = staffMember(SettingPermission::Update);
+        $staffMember = staffMember('Setting Update');
         $upload = TemporaryUpload::factory()->create(['user_id' => $staffMember->id]);
 
         $this->actingAs($staffMember)
@@ -155,7 +154,7 @@ describe('logo', function () {
 });
 
 test('the default language must be a supported locale', function () {
-    $this->actingAs(staffMember(SettingPermission::Update))
+    $this->actingAs(staffMember('Setting Update'))
         ->put(route('admin.settings.update'), validSettings(['localization' => ['default_locale' => 'fr']]))
         ->assertSessionHasErrors('localization.default_locale');
 });

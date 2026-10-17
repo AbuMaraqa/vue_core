@@ -1,36 +1,25 @@
 <script setup lang="ts">
-import type { LucideIcon } from '@lucide/vue';
-import {
-    Boxes,
-    ChartColumn,
-    Circle,
-    History,
-    Images,
-    LayoutDashboard,
-    Package,
-    Settings,
-    ShieldCheck,
-    ShoppingCart,
-    Tags,
-    Users,
-} from '@lucide/vue';
 import { computed } from 'vue';
+import type { Component } from 'vue';
+import History from '~icons/solar/history-linear';
+import Images from '~icons/solar/gallery-linear';
+import Circle from '~icons/solar/record-linear';
+import Settings from '~icons/solar/settings-linear';
+import Users from '~icons/solar/users-group-rounded-linear';
+import LayoutDashboard from '~icons/solar/widget-linear';
 
 /**
- * Icons referenced by name from the server, e.g. by sidebar items.
- * Register a new icon here when a module needs it.
+ * Icons referenced by name from the server, e.g. `SidebarItem::make('Users')->icon('users')`.
+ *
+ * They come from the Solar icon set (https://icon-sets.iconify.design/solar/).
+ * When a module needs a new icon, import it above and add its name here.
+ * Unknown names fall back to a small circle.
  */
-const icons: Record<string, LucideIcon> = {
-    'chart-column': ChartColumn,
-    boxes: Boxes,
+const icons: Record<string, Component> = {
     history: History,
     images: Images,
     'layout-dashboard': LayoutDashboard,
-    package: Package,
     settings: Settings,
-    'shield-check': ShieldCheck,
-    'shopping-cart': ShoppingCart,
-    tags: Tags,
     users: Users,
 };
 

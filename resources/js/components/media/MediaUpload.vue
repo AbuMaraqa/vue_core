@@ -14,7 +14,8 @@ import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type';
 import FilePondPluginImagePreview from 'filepond-plugin-image-preview';
 import 'filepond/dist/filepond.min.css';
 import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.min.css';
-import { Images, X } from '@lucide/vue';
+import Images from '~icons/solar/gallery-linear';
+import X from '~icons/solar/close-linear';
 import { computed, ref, useTemplateRef } from 'vue';
 import vueFilePond from 'vue-filepond';
 import BaseButton from '@/components/base/BaseButton.vue';
@@ -22,6 +23,7 @@ import MediaPicker from '@/components/media/MediaPicker.vue';
 import { usePermissions } from '@/composables/usePermissions';
 import { useTranslations } from '@/composables/useTranslations';
 import { jsonHeaders } from '@/lib/http';
+import { emptyMediaInput } from '@/lib/media';
 import {
     destroy as destroyUpload,
     store as storeUpload,
@@ -65,7 +67,7 @@ const emit = defineEmits<{
 }>();
 
 const model = defineModel<MediaInput>({
-    default: () => ({ uploads: [], library: [], removed: [] }),
+    default: emptyMediaInput,
 });
 
 /**
@@ -298,7 +300,7 @@ function handleAddFile(): void {
         </div>
 
         <BaseButton
-            v-if="allowLibrary && can('media.view-any') && !disabled"
+            v-if="allowLibrary && can('Media View List') && !disabled"
             variant="outline"
             size="sm"
             @click="pickerOpen = true"

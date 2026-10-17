@@ -1,7 +1,6 @@
 <?php
 
 use App\Models\User;
-use App\Modules\Core\Enums\Permissions\UserPermission;
 use App\Modules\Core\Enums\UserRole;
 use Illuminate\Support\Facades\Hash;
 use Inertia\Testing\AssertableInertia as Assert;
@@ -21,7 +20,7 @@ describe('index', function () {
         User::factory()->create(['name' => 'Sara Customer']);
         User::factory()->withRole('Editor')->create(['name' => 'Omar Editor']);
 
-        $this->actingAs(staffMember(UserPermission::ViewAny))
+        $this->actingAs(staffMember('User View List'))
             ->get(route('admin.users.index', ['filter' => ['search' => 'Sara', 'role' => 'Editor']]))
             ->assertOk()
             ->assertInertia(fn (Assert $page) => $page
@@ -37,7 +36,7 @@ describe('store', function () {
     test('a user is created with the selected roles and a verified email', function () {
         Role::findOrCreate('Editor', 'web');
 
-        $this->actingAs(staffMember(UserPermission::Create))
+        $this->actingAs(staffMember('User Create'))
             ->post(route('admin.users.store'), [
                 'name' => 'New Member',
                 'email' => 'member@example.com',
@@ -55,7 +54,7 @@ describe('store', function () {
     });
 
     test('the required fields are validated', function () {
-        $this->actingAs(staffMember(UserPermission::Create))
+        $this->actingAs(staffMember('User Create'))
             ->post(route('admin.users.store'), [])
             ->assertSessionHasErrors(['name', 'email', 'password', 'roles']);
     });
@@ -63,7 +62,7 @@ describe('store', function () {
     test('only super admins can grant the super admin role', function () {
         Role::findOrCreate(UserRole::SuperAdmin->value, 'web');
 
-        $this->actingAs(staffMember(UserPermission::Create))
+        $this->actingAs(staffMember('User Create'))
             ->post(route('admin.users.store'), [
                 'name' => 'Sneaky',
                 'email' => 'sneaky@example.com',
@@ -82,7 +81,7 @@ describe('update', function () {
         $user = User::factory()->create();
         $originalPassword = $user->password;
 
-        $this->actingAs(staffMember(UserPermission::Update))
+        $this->actingAs(staffMember('User Update'))
             ->put(route('admin.users.update', $user), [
                 'name' => 'Renamed',
                 'email' => $user->email,
@@ -101,7 +100,7 @@ describe('update', function () {
         Role::findOrCreate('Editor', 'web');
         $user = User::factory()->withRole('Editor')->create();
 
-        $this->actingAs(staffMember(UserPermission::Update))
+        $this->actingAs(staffMember('User Update'))
             ->put(route('admin.users.update', $user), [
                 'name' => $user->name,
                 'email' => $user->email,
@@ -120,7 +119,7 @@ describe('update', function () {
     test('staff members cannot edit a super admin', function () {
         $superAdmin = User::factory()->superAdmin()->create();
 
-        $this->actingAs(staffMember(UserPermission::Update))
+        $this->actingAs(staffMember('User Update'))
             ->get(route('admin.users.edit', $superAdmin))
             ->assertForbidden();
     });
@@ -130,7 +129,7 @@ describe('destroy', function () {
     test('a user is deleted', function () {
         $user = User::factory()->create();
 
-        $this->actingAs(staffMember(UserPermission::Delete))
+        $this->actingAs(staffMember('User Delete'))
             ->delete(route('admin.users.destroy', $user))
             ->assertRedirect(route('admin.users.index'));
 
@@ -138,7 +137,7 @@ describe('destroy', function () {
     });
 
     test('users cannot delete their own account from the admin panel', function () {
-        $staffMember = staffMember(UserPermission::Delete);
+        $staffMember = staffMember('User Delete');
 
         $this->actingAs($staffMember)
             ->delete(route('admin.users.destroy', $staffMember))

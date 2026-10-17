@@ -2,8 +2,6 @@
 
 namespace App\Modules\Core\Support;
 
-use App\Modules\Core\Contracts\PermissionGroup;
-use App\Modules\Core\Support\Permissions\PermissionRegistry;
 use App\Modules\Core\Support\Sidebar\Sidebar;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
@@ -11,19 +9,12 @@ use Illuminate\Support\ServiceProvider;
 /**
  * The base provider every module extends.
  *
- * A module declares its permissions, policies, routes and sidebar entries here.
- * Permissions and sidebar entries are registered lazily, only when the registry
- * or the sidebar is actually resolved.
+ * A module declares its policies, routes and sidebar entries here. Sidebar
+ * entries are registered lazily, only when the sidebar is actually resolved.
+ * The permissions of every module are defined in the PermissionSeeder.
  */
 abstract class ModuleServiceProvider extends ServiceProvider
 {
-    /**
-     * The permission group enums the module defines.
-     *
-     * @var list<class-string<PermissionGroup>>
-     */
-    protected array $permissions = [];
-
     /**
      * The policy mappings of the module.
      *
@@ -53,7 +44,6 @@ abstract class ModuleServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        $this->callAfterResolving(PermissionRegistry::class, fn (PermissionRegistry $registry) => $registry->register(...$this->permissions));
         $this->callAfterResolving(Sidebar::class, fn (Sidebar $sidebar) => $this->sidebar($sidebar));
 
         foreach ($this->policies as $model => $policy) {

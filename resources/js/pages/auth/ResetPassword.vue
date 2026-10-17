@@ -4,7 +4,7 @@ import BaseButton from '@/components/base/BaseButton.vue';
 import BaseInput from '@/components/base/BaseInput.vue';
 import BaseInputError from '@/components/base/BaseInputError.vue';
 import BaseLabel from '@/components/base/BaseLabel.vue';
-import PasswordInput from '@/components/PasswordInput.vue';
+import BasePasswordInput from '@/components/base/BasePasswordInput.vue';
 import { useTranslations } from '@/composables/useTranslations';
 import { update } from '@/routes/password';
 
@@ -51,7 +51,7 @@ const { t } = useTranslations();
                 <BaseLabel for="password" required>{{
                     t('Password')
                 }}</BaseLabel>
-                <PasswordInput
+                <BasePasswordInput
                     id="password"
                     v-focus
                     name="password"
@@ -66,7 +66,7 @@ const { t } = useTranslations();
                 <BaseLabel for="password_confirmation" required>
                     {{ t('Confirm password') }}
                 </BaseLabel>
-                <PasswordInput
+                <BasePasswordInput
                     id="password_confirmation"
                     name="password_confirmation"
                     autocomplete="new-password"
