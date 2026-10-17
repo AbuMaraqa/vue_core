@@ -18,6 +18,7 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Activitylog\Models\Concerns\LogsActivity;
 use Spatie\Activitylog\Support\LogOptions;
+use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Traits\HasRoles;
 
@@ -63,6 +64,19 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
     public function isSuperAdmin(): bool
     {
         return $this->hasRole(UserRole::SuperAdmin);
+    }
+
+    /**
+     * The names of the permissions the user holds, for interfaces that show or
+     * hide actions. Super admins hold every permission.
+     *
+     * @return list<string>
+     */
+    public function permissionNames(): array
+    {
+        $permissions = $this->isSuperAdmin() ? Permission::all() : $this->getAllPermissions();
+
+        return array_values($permissions->map(fn (Permission $permission): string => $permission->name)->all());
     }
 
     public function getActivitylogOptions(): LogOptions

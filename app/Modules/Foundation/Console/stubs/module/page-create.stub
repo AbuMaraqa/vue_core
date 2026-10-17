@@ -1,0 +1,22 @@
+<script setup lang="ts">
+import PageHeader from '@/components/common/PageHeader.vue';
+import %%Model%%Form from '@/components/%%route%%/%%Model%%Form.vue';
+import { useTranslations } from '@/composables/useTranslations';
+import { index } from '@/routes/admin/%%route%%';
+
+const { t } = useTranslations();
+</script>
+
+<template>
+    <div>
+        <PageHeader
+            :title="t('Add %%Label%%')"
+            :breadcrumbs="[
+                { title: t('%%Labels%%'), href: index() },
+                { title: t('Add %%Label%%') },
+            ]"
+        />
+
+        <%%Model%%Form />
+    </div>
+</template>

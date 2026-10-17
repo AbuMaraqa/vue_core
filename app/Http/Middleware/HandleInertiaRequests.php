@@ -10,7 +10,6 @@ use App\Modules\Core\Support\Localization\Locales;
 use App\Modules\Core\Support\Sidebar\Sidebar;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
-use Spatie\Permission\Models\Permission;
 
 class HandleInertiaRequests extends Middleware
 {
@@ -54,8 +53,9 @@ class HandleInertiaRequests extends Middleware
             ],
             'auth' => [
                 'user' => $user ? $this->sharedUser($user) : null,
-                'permissions' => fn (): array => $user ? $this->permissionsOf($user) : [],
+                'permissions' => fn (): array => $user?->permissionNames() ?? [],
             ],
+            'unreadNotifications' => fn (): int => $user?->unreadNotifications()->count() ?? 0,
             'locale' => app()->getLocale(),
             'direction' => $locales->direction(),
             'locales' => fn (): array => $locales->all(),
@@ -81,19 +81,5 @@ class HandleInertiaRequests extends Middleware
             'locale' => $user->locale,
             'email_verified_at' => $user->email_verified_at?->toIso8601String(),
         ];
-    }
-
-    /**
-     * Get the names of the permissions the user holds, used to toggle actions on the frontend.
-     *
-     * @return list<string>
-     */
-    protected function permissionsOf(User $user): array
-    {
-        $permissions = $user->isSuperAdmin()
-            ? Permission::all()->map(fn (Permission $permission): string => $permission->name)
-            : $user->getAllPermissions()->map(fn (Permission $permission): string => $permission->name);
-
-        return array_values($permissions->all());
     }
 }

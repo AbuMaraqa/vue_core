@@ -1,0 +1,69 @@
+<?php
+
+use App\Modules\%%Module%%\Models\%%Model%%;
+use Inertia\Testing\AssertableInertia as Assert;
+
+test('staff members without the permission are forbidden', function () {
+    $this->actingAs(staffMember())
+        ->get(route('admin.%%route%%.index'))
+        ->assertForbidden();
+});
+
+test('the list can be searched', function () {
+    %%Model%%::factory()->create(['name' => 'Alpha']);
+    %%Model%%::factory()->create(['name' => 'Beta']);
+
+    $this->actingAs(staffMember('%%Label%% View List'))
+        ->get(route('admin.%%route%%.index', ['filter' => ['search' => 'Alp']]))
+        ->assertOk()
+        ->assertInertia(fn (Assert $page) => $page
+            ->component('admin/%%route%%/Index')
+            ->has('%%modelsVar%%.data', 1)
+            ->where('%%modelsVar%%.data.0.name', 'Alpha'),
+        );
+});
+
+test('a %%labelLower%% is created', function () {
+    $this->actingAs(staffMember('%%Label%% Create'))
+        ->post(route('admin.%%route%%.store'), ['name' => 'Alpha', 'description' => 'The first one'])
+        ->assertRedirect(route('admin.%%route%%.index'));
+
+    expect(%%Model%%::query()->sole())
+        ->name->toBe('Alpha')
+        ->description->toBe('The first one');
+});
+
+test('the name is required', function () {
+    $this->actingAs(staffMember('%%Label%% Create'))
+        ->post(route('admin.%%route%%.store'), ['name' => ''])
+        ->assertSessionHasErrors('name');
+});
+
+test('a %%labelLower%% is updated', function () {
+    $%%modelVar%% = %%Model%%::factory()->create();
+
+    $this->actingAs(staffMember('%%Label%% Update'))
+        ->put(route('admin.%%route%%.update', $%%modelVar%%), ['name' => 'Renamed'])
+        ->assertRedirect(route('admin.%%route%%.index'));
+
+    expect($%%modelVar%%->fresh()->name)->toBe('Renamed');
+});
+
+test('a %%labelLower%% is deleted', function () {
+    $%%modelVar%% = %%Model%%::factory()->create();
+
+    $this->actingAs(staffMember('%%Label%% Delete'))
+        ->delete(route('admin.%%route%%.destroy', $%%modelVar%%))
+        ->assertRedirect(route('admin.%%route%%.index'));
+
+    expect($%%modelVar%%->fresh())->toBeNull();
+});
+
+test('the list is exported', function () {
+    %%Model%%::factory()->create(['name' => 'Alpha']);
+
+    $this->actingAs(staffMember('%%Label%% Export'))
+        ->get(route('admin.%%route%%.export', ['format' => 'csv']))
+        ->assertOk()
+        ->assertDownload();
+});

@@ -37,6 +37,10 @@ app/
     Providers/CoreServiceProvider.php
     Rules/, Settings/, Support/   validation rules, spatie settings classes, Sidebar + Locales
     routes/web.php, routes/admin.php
+  Modules/Foundation/             cross-cutting services (see motasem-foundation): errors, request ids,
+                                  /health, security headers, login history, sessions, notifications,
+                                  exports/imports, backups, JSON API v1, make:module generator
+config/foundation.php                   settings of the Foundation module
 database/seeders/PermissionSeeder.php   the single list of permissions (see motasem-permissions)
 database/settings/                      spatie settings migrations
 lang/ar.json                            all UI strings (keys are the English text)
@@ -67,14 +71,22 @@ protected function sidebar(Sidebar $sidebar): void { /* sections, groups, items 
 - Module providers are listed in `bootstrap/providers.php`.
 - `CoreServiceProvider` also binds `Sidebar` as a singleton, configures the `{locale}` route pattern, and registers `Gate::after` so Super Admin passes every check that was not explicitly denied.
 
-To add a module, follow the **motasem-module-development** skill.
+**Layers.** Core is the kernel: module system, sidebar, auth-related admin, users, roles, settings, media. Foundation builds on Core and adds shared services. Business modules build on both.
+
+**Dependency rule:** Core never depends on Foundation or on a business module. When Foundation adds something to a Core screen (e.g. users export/import), the code lives in Foundation.
+
+To add a module, run `php artisan make:module <Name> --resource=<Model>` and then follow **motasem-module-development**.
 
 ## Request lifecycle
 
 1. Every page URL starts with a language segment, `/{locale}/...`, for example `/ar/admin/users`. The Fortify auth routes (`/login`, `/register`...) and `PUT /locale` have no segment. See **motasem-localization**.
-2. The web middleware stack appends `SetLocale`, `HandleAppearance`, `HandleInertiaRequests` and `AddLinkHeadersForPreloadedAssets` (`bootstrap/app.php`).
+2. Middleware:
+    - Every request, including API and `/health`, first gets `AssignRequestId` and finally `AddSecurityHeaders`. Both are global middleware registered by Foundation.
+    - The web group appends `SetLocale`, `HandleAppearance`, `HandleInertiaRequests` and `AddLinkHeadersForPreloadedAssets` (`bootstrap/app.php`).
+    - API routes (`/api/v1`) use `api`, `SetApiLocale` and `throttle:api`.
 3. Admin routes use `['web', 'auth', 'verified', 'can:Dashboard View']`, `prefix('{locale}/admin')` and `name('admin.')`.
 4. A controller authorizes, then delegates writes to an Action that receives a Data object, then renders an Inertia page with API Resources, or flashes a toast and redirects.
+5. Errors render the translated `errors/Error` page (or JSON with `request_id` for API calls), handled by Foundation's `ExceptionResponder`.
 
 ## Shared Inertia props
 
@@ -87,6 +99,9 @@ Defined in `app/Http/Middleware/HandleInertiaRequests.php` and typed in `resourc
 | `auth`                                           | `{user: {id, name, email, locale, email_verified_at}, permissions: string[]}`; a Super Admin receives every permission name |
 | `locale`, `direction`, `locales`, `translations` | localization (all of `lang/{locale}.json` is shared)                                                                        |
 | `sidebar`                                        | the resolved sidebar tree, empty for guests                                                                                 |
+| `unreadNotifications`                            | the number of unread notifications (the header bell)                                                                        |
+
+Flash data is typed in `global.d.ts` as `flashDataType`: `toast` and `importResult`.
 
 If you add a shared prop, add it to both files.
 
@@ -98,7 +113,7 @@ If you add a shared prop, add it to both files.
     - Build a Data object with `XData::from($request->validated())` and call an Action.
     - Then `Inertia::flash('toast', ['type' => 'success', 'message' => __('X created.')])` and `to_route(...)`.
 - **Index endpoints** use `Spatie\QueryBuilder\QueryBuilder`.
-    - Search filters are `AllowedFilter::callback(...)->delimiter('')`.
+    - Search filters are `AllowedFilter::callback(...)->delimiter('')`. Modules other than Core use Foundation's `SearchFilter::on('name', ...)`.
     - Return `XResource::collection($query->paginate(n)->withQueryString())` plus a `filters` array echoing the request.
 - **Resources** expose `can: {update, delete}` per row by calling the policy. The frontend uses these flags for row actions.
 - **Activity log:** models use `LogsActivity` with `logOnly([...])->logOnlyDirty()`. Operations without a model event (role save/delete) call `activity('<log>')` explicitly.
@@ -121,9 +136,13 @@ If you add a shared prop, add it to both files.
 | Front types / lint / format | `npm run types:check`, `npx vp lint`, `npx vp fmt`                                 |
 | Fresh database              | `php artisan migrate:fresh --seed` (default admin: `admin@admin.com` / `password`) |
 | Re-seed permissions         | `php artisan db:seed --class=PermissionSeeder`                                     |
+| New module                  | `php artisan make:module Catalog --resource=Category`                              |
+| API docs                    | `php artisan l5-swagger:generate`, then open `/api/documentation`                  |
+| Route helpers (TS)          | `php artisan wayfinder:generate --with-form` (Vite does it in dev)                 |
 
 ## Related skills
 
+- **motasem-foundation**: errors, security, notifications, exports/imports, backups, API, `make:module`.
 - **motasem-module-development**: add a module or an admin CRUD feature, end to end.
 - **motasem-permissions**: permission names, policies, roles, Super Admin.
 - **motasem-admin-ui**: Vue pages, Base components, icons, Tailwind tokens, RTL.

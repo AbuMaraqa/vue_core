@@ -1,0 +1,16 @@
+<?php
+
+namespace App\Modules\%%Module%%\Data;
+
+use Spatie\LaravelData\Data;
+
+/**
+ * The validated details of a %%labelLower%%.
+ */
+class %%Model%%Data extends Data
+{
+    public function __construct(
+        public string $name,
+        public ?string $description = null,
+    ) {}
+}

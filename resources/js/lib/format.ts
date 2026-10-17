@@ -41,3 +41,22 @@ export function formatRelative(value: string | null, locale: string): string {
 
     return formatter.format(0, 'second');
 }
+
+const BYTE_UNITS = ['byte', 'kilobyte', 'megabyte', 'gigabyte', 'terabyte'];
+
+/**
+ * Format a file size, e.g. "4.2 MB", in the given locale.
+ */
+export function formatBytes(bytes: number, locale: string): string {
+    const exponent = Math.min(
+        Math.floor(Math.log(Math.max(bytes, 1)) / Math.log(1024)),
+        BYTE_UNITS.length - 1,
+    );
+
+    return new Intl.NumberFormat(locale, {
+        style: 'unit',
+        unit: BYTE_UNITS[exponent],
+        unitDisplay: 'short',
+        maximumFractionDigits: exponent === 0 ? 0 : 1,
+    }).format(bytes / 1024 ** exponent);
+}

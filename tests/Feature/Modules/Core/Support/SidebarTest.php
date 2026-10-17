@@ -26,7 +26,7 @@ test('super admins see every sidebar entry', function () {
     $this->actingAs(User::factory()->superAdmin()->create())
         ->get(route('admin.dashboard'))
         ->assertInertia(fn (Assert $page) => $page
-            ->has('sidebar.1.items', 4)
+            ->where('sidebar.1.items', fn ($items): bool => collect($items)->pluck('key')->intersect(['users-management', 'media-library', 'activity-log', 'settings'])->count() === 4)
             ->has('sidebar.1.items.0.children', 3),
         );
 });

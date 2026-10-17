@@ -11,6 +11,8 @@ import BaseSelect from '@/components/base/BaseSelect.vue';
 import ConfirmDialog from '@/components/common/ConfirmDialog.vue';
 import DataCard from '@/components/common/DataCard.vue';
 import EmptyState from '@/components/common/EmptyState.vue';
+import ExportMenu from '@/components/common/ExportMenu.vue';
+import ImportDialog from '@/components/common/ImportDialog.vue';
 import PageHeader from '@/components/common/PageHeader.vue';
 import SearchInput from '@/components/common/SearchInput.vue';
 import { useConfirmDelete } from '@/composables/useConfirmDelete';
@@ -19,7 +21,15 @@ import { useLocale } from '@/composables/useLocale';
 import { usePermissions } from '@/composables/usePermissions';
 import { useTranslations } from '@/composables/useTranslations';
 import { formatDate } from '@/lib/format';
-import { create, destroy, edit, index } from '@/routes/admin/users';
+import {
+    create,
+    destroy,
+    edit,
+    exportMethod,
+    importMethod,
+    importTemplate,
+    index,
+} from '@/routes/admin/users';
 import type { ManagedUser, Paginated } from '@/types';
 
 const props = defineProps<{
@@ -51,6 +61,14 @@ const deletion = useConfirmDelete((user: ManagedUser) =>
     <div>
         <PageHeader :title="t('Users')" :breadcrumbs="[{ title: t('Users') }]">
             <template #actions>
+                <ImportDialog
+                    v-if="can('User Import')"
+                    :title="t('Import users')"
+                    :import-route="importMethod"
+                    :template-route="importTemplate"
+                    :columns="['name', 'email', 'password', 'roles']"
+                />
+                <ExportMenu v-if="can('User Export')" :route="exportMethod" />
                 <BaseButton v-if="can('User Create')" :href="create()">
                     <Plus class="size-5" />
                     {{ t('Add User') }}

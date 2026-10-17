@@ -1,9 +1,11 @@
 import type { createHeadManager, Page, Router } from '@inertiajs/core';
 import type { Directive } from 'vue';
+import type { ImportResult } from '@/types/admin';
 import type { Auth } from '@/types/auth';
 import type { Direction, Locale } from '@/types/localization';
 import type { SidebarSection } from '@/types/sidebar';
 import type { Theme } from '@/types/theme';
+import type { FlashToast } from '@/types/ui';
 
 // Extend ImportMeta interface for Vite...
 declare module 'vite/client' {
@@ -20,6 +22,10 @@ declare module 'vite/client' {
 
 declare module '@inertiajs/core' {
     export interface InertiaConfig {
+        flashDataType: {
+            toast?: FlashToast;
+            importResult?: ImportResult;
+        };
         sharedPageProps: {
             name: string;
             theme: Theme;
@@ -29,6 +35,7 @@ declare module '@inertiajs/core' {
             locales: Locale[];
             translations: Record<string, string>;
             sidebar: SidebarSection[];
+            unreadNotifications: number;
             [key: string]: unknown;
         };
     }

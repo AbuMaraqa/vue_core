@@ -26,6 +26,7 @@ Before writing UI, read one existing sibling page. `pages/admin/users/*` and `co
 | Page name       | Layout                                                                                |
 | --------------- | ------------------------------------------------------------------------------------- |
 | `Welcome`       | none                                                                                  |
+| `errors/*`      | none (the error page, also shown to guests)                                           |
 | `auth/*`        | `AuthLayout` (takes `title`/`description` via `defineOptions({ layout: { title } })`) |
 | everything else | `AdminLayout` (sidebar + header + `<Toaster>`)                                        |
 
@@ -56,8 +57,10 @@ Before writing UI, read one existing sibling page. `pages/admin/users/*` and `co
 | `ConfirmDialog`   | `open`, `title`, `message`, `confirmLabel`, `processing`, `@confirm`, `@update:open`                                |
 | `EmptyState`      | `message`, optional slot                                                                                            |
 | `AppIcon`         | `name` from the server (sidebar), mapped to a Solar icon                                                            |
+| `ExportMenu`      | `:route="exportMethod"` (Wayfinder export route); downloads Excel/CSV/PDF with the current filters                  |
+| `ImportDialog`    | `title`, `:import-route`, `:template-route`, `:columns`; shows the failed rows from the `importResult` flash        |
 
-Feature folders: `components/<feature>/` (users, roles, media, settings, dashboard), `components/account/` (the signed-in user's own profile, passkeys and 2FA), `components/layout/` (sidebar, header, logo).
+Feature folders: `components/<feature>/` (users, roles, media, settings, dashboard, notifications), `components/account/` (the signed-in user's own profile, passkeys and 2FA), `components/layout/` (sidebar, header, logo).
 
 ## Page patterns
 
@@ -139,6 +142,8 @@ function submit(): void {
 - Each field is `<BaseField :label="t('Name')" for="name" required :error="form.errors.name">`, wrapping `<BaseInput id="name" v-model="form.name" :invalid="Boolean(form.errors.name)" />`.
 - Admin pages use `useForm`. Auth pages and the account security page use Inertia's `<Form>` component.
 
+**Header.** `components/layout/NotificationBell.vue` shows `page.props.unreadNotifications` and loads the latest notifications with `useHttp` when opened.
+
 **Feedback.** Success messages come from the server: `Inertia::flash('toast', ...)` is shown by `lib/flashToast.ts`. Don't call `toast()` for server results. **Deferred props** (e.g. dashboard `registrations`) need a skeleton/pulse placeholder while loading.
 
 ## Permissions in the UI
@@ -173,6 +178,8 @@ function submit(): void {
 | `useIndexFilters`                 | `{ filters, sort, sortBy, apply }` for index pages (spatie query-builder query string)                         |
 | `useConfirmDelete`                | `{ target, processing, ask, cancel, confirm }` for a delete confirmation dialog                                |
 | `lib/media`                       | `emptyMediaInput()` — the initial value of a `MediaUpload` field                                               |
+| `lib/device`                      | `describeDevice(device, t)` → "Chrome on Windows"                                                              |
+| `lib/format` → `formatBytes`      | file sizes in the user's locale                                                                                |
 | `useTwoFactorAuth`, `useInitials` | 2FA setup data; avatar initials                                                                                |
 | `lib/format`                      | `formatDate(value, locale)`, `formatNumber`, `formatRelative`; always pass `locale` from `useLocale()`         |
 | `lib/activity`                    | `eventColor`                                                                                                   |

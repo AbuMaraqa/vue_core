@@ -1,0 +1,19 @@
+<?php
+
+namespace App\Modules\%%Module%%\Policies;
+
+use App\Modules\Core\Concerns\AuthorizesWithPermissions;
+
+/**
+ * Answers the standard abilities with the `%%Label%% ...` permissions of the
+ * PermissionSeeder. Override an ability to add business rules.
+ */
+class %%Model%%Policy
+{
+    use AuthorizesWithPermissions;
+
+    protected function permissionPrefix(): string
+    {
+        return '%%Label%%';
+    }
+}

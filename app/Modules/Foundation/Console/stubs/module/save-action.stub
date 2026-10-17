@@ -1,0 +1,19 @@
+<?php
+
+namespace App\Modules\%%Module%%\Actions\%%Models%%;
+
+use App\Modules\%%Module%%\Data\%%Model%%Data;
+use App\Modules\%%Module%%\Models\%%Model%%;
+
+class Save%%Model%%
+{
+    /**
+     * Create a new %%labelLower%% or update an existing one.
+     */
+    public function handle(%%Model%% $%%modelVar%%, %%Model%%Data $data): %%Model%%
+    {
+        $%%modelVar%%->fill($data->toArray())->save();
+
+        return $%%modelVar%%;
+    }
+}

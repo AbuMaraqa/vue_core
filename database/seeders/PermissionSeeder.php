@@ -55,6 +55,16 @@ class PermissionSeeder extends Seeder
                 'guard_name' => 'web',
                 'module_name' => 'User Management',
             ],
+            [
+                'name' => 'User Export',
+                'guard_name' => 'web',
+                'module_name' => 'User Management',
+            ],
+            [
+                'name' => 'User Import',
+                'guard_name' => 'web',
+                'module_name' => 'User Management',
+            ],
 
             // Roles And Permissions
             [
@@ -112,6 +122,40 @@ class PermissionSeeder extends Seeder
                 'name' => 'Activity Log View List',
                 'guard_name' => 'web',
                 'module_name' => 'Activity Log Management',
+            ],
+
+            // Login History
+            [
+                'name' => 'Login History View List',
+                'guard_name' => 'web',
+                'module_name' => 'Login History Management',
+            ],
+            [
+                'name' => 'Login History Export',
+                'guard_name' => 'web',
+                'module_name' => 'Login History Management',
+            ],
+
+            // Backup
+            [
+                'name' => 'Backup View List',
+                'guard_name' => 'web',
+                'module_name' => 'Backup Management',
+            ],
+            [
+                'name' => 'Backup Create',
+                'guard_name' => 'web',
+                'module_name' => 'Backup Management',
+            ],
+            [
+                'name' => 'Backup Download',
+                'guard_name' => 'web',
+                'module_name' => 'Backup Management',
+            ],
+            [
+                'name' => 'Backup Delete',
+                'guard_name' => 'web',
+                'module_name' => 'Backup Management',
             ],
         ];
 

@@ -1,0 +1,103 @@
+<?php
+
+namespace App\Modules\%%Module%%\Http\Controllers;
+
+use App\Http\Controllers\Controller;
+use App\Modules\%%Module%%\Actions\%%Models%%\Save%%Model%%;
+use App\Modules\%%Module%%\Data\%%Model%%Data;
+use App\Modules\%%Module%%\Exports\%%Models%%Exporter;
+use App\Modules\%%Module%%\Http\Requests\%%Models%%\Store%%Model%%Request;
+use App\Modules\%%Module%%\Http\Requests\%%Models%%\Update%%Model%%Request;
+use App\Modules\%%Module%%\Http\Resources\%%Model%%Resource;
+use App\Modules\%%Module%%\Models\%%Model%%;
+use App\Modules\Foundation\Http\Requests\ExportRequest;
+use App\Modules\Foundation\Support\Filters\SearchFilter;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
+use Inertia\Inertia;
+use Inertia\Response;
+use Spatie\QueryBuilder\QueryBuilder;
+use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
+
+class %%Model%%Controller extends Controller
+{
+    public function index(Request $request): Response
+    {
+        Gate::authorize('viewAny', %%Model%%::class);
+
+        return Inertia::render('admin/%%route%%/Index', [
+            '%%modelsVar%%' => %%Model%%Resource::collection($this->query()->paginate(15)->withQueryString()),
+            'filters' => [
+                'search' => $request->input('filter.search'),
+                'sort' => $request->input('sort', '-created_at'),
+            ],
+        ]);
+    }
+
+    public function create(): Response
+    {
+        Gate::authorize('create', %%Model%%::class);
+
+        return Inertia::render('admin/%%route%%/Create');
+    }
+
+    public function store(Store%%Model%%Request $request, Save%%Model%% $save%%Model%%): RedirectResponse
+    {
+        $save%%Model%%->handle(new %%Model%%, %%Model%%Data::from($request->validated()));
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('%%Label%% created.')]);
+
+        return to_route('admin.%%route%%.index');
+    }
+
+    public function edit(%%Model%% $%%modelVar%%): Response
+    {
+        Gate::authorize('update', $%%modelVar%%);
+
+        return Inertia::render('admin/%%route%%/Edit', [
+            '%%modelVar%%' => %%Model%%Resource::make($%%modelVar%%),
+        ]);
+    }
+
+    public function update(Update%%Model%%Request $request, %%Model%% $%%modelVar%%, Save%%Model%% $save%%Model%%): RedirectResponse
+    {
+        $save%%Model%%->handle($%%modelVar%%, %%Model%%Data::from($request->validated()));
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('%%Label%% updated.')]);
+
+        return to_route('admin.%%route%%.index');
+    }
+
+    public function destroy(%%Model%% $%%modelVar%%): RedirectResponse
+    {
+        Gate::authorize('delete', $%%modelVar%%);
+
+        $%%modelVar%%->delete();
+
+        Inertia::flash('toast', ['type' => 'success', 'message' => __('%%Label%% deleted.')]);
+
+        return to_route('admin.%%route%%.index');
+    }
+
+    /**
+     * The permission is checked by the route, before the format is validated.
+     */
+    public function export(ExportRequest $request): SymfonyResponse
+    {
+        return %%Models%%Exporter::from($this->query())->download($request->exportFormat());
+    }
+
+    /**
+     * The filtered and sorted list, shared by the page and its exports.
+     *
+     * @return QueryBuilder<%%Model%%>
+     */
+    protected function query(): QueryBuilder
+    {
+        return QueryBuilder::for(%%Model%%::class)
+            ->allowedFilters(SearchFilter::on('name', 'description'))
+            ->allowedSorts('name', 'created_at')
+            ->defaultSort('-created_at');
+    }
+}

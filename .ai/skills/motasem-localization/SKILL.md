@@ -73,6 +73,12 @@ Never add a `locale` parameter when generating URLs, in PHP (`route('admin.users
 - Use RTL-safe Tailwind classes; see **motasem-admin-ui**.
 - Format numbers and dates with `lib/format` and the current locale.
 
+## API and notifications
+
+- **API:** API requests choose their language with `Accept-Language` (`SetApiLocale`), and every API response carries `Content-Language`.
+- **Notifications:** stored as English keys plus parameters, and translated when displayed, so each reader sees their own language (**motasem-foundation**).
+- **Exports:** headings and PDF text follow the locale of the user who downloads them.
+
 ## Adding a language
 
 1. Uncomment it in `config/laravellocalization.php` → `supportedLocales`.

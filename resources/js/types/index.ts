@@ -2,6 +2,8 @@ export * from './admin';
 export * from './auth';
 export * from './localization';
 export * from './media';
+export * from './notifications';
+export * from './security';
 export * from './sidebar';
 export * from './theme';
 export * from './ui';

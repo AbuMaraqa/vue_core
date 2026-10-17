@@ -1,0 +1,70 @@
+<script setup lang="ts">
+import { useForm } from '@inertiajs/vue3';
+import BaseButton from '@/components/base/BaseButton.vue';
+import BaseCard from '@/components/base/BaseCard.vue';
+import BaseField from '@/components/base/BaseField.vue';
+import BaseInput from '@/components/base/BaseInput.vue';
+import BaseTextarea from '@/components/base/BaseTextarea.vue';
+import { useTranslations } from '@/composables/useTranslations';
+import { index, store, update } from '@/routes/admin/%%route%%';
+import type { %%Model%% } from '@/types';
+
+const props = defineProps<{
+    %%modelVar%%?: %%Model%%;
+}>();
+
+const { t } = useTranslations();
+
+const form = useForm({
+    name: props.%%modelVar%%?.name ?? '',
+    description: props.%%modelVar%%?.description ?? '',
+});
+
+function submit(): void {
+    form.submit(
+        props.%%modelVar%% ? update({ %%param%%: props.%%modelVar%%.id }) : store(),
+        { preserveScroll: true },
+    );
+}
+</script>
+
+<template>
+    <form class="space-y-6" @submit.prevent="submit">
+        <BaseCard :title="t('Details')">
+            <div class="grid grid-cols-1 gap-5">
+                <BaseField
+                    :label="t('Name')"
+                    for="name"
+                    required
+                    :error="form.errors.name"
+                >
+                    <BaseInput
+                        id="name"
+                        v-model="form.name"
+                        :invalid="Boolean(form.errors.name)"
+                    />
+                </BaseField>
+                <BaseField
+                    :label="t('Description')"
+                    for="description"
+                    :error="form.errors.description"
+                >
+                    <BaseTextarea
+                        id="description"
+                        v-model="form.description"
+                        :invalid="Boolean(form.errors.description)"
+                    />
+                </BaseField>
+            </div>
+        </BaseCard>
+
+        <div class="flex justify-end gap-3">
+            <BaseButton variant="outline" :href="index()">
+                {{ t('Cancel') }}
+            </BaseButton>
+            <BaseButton type="submit" :loading="form.processing">
+                {{ %%modelVar%% ? t('Save changes') : t('Create') }}
+            </BaseButton>
+        </div>
+    </form>
+</template>

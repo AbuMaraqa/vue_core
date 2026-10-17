@@ -37,14 +37,17 @@ Roles keep the permissions that still exist; nothing is wiped. Apply changes wit
 
 The format is `"{Prefix} {Action}"`. The prefix is the human name of the resource:
 
-| Prefix                  | Permissions                                          | Group name                       |
-| ----------------------- | ---------------------------------------------------- | -------------------------------- |
-| `Dashboard`             | `Dashboard View` (the gate of the whole admin panel) | Dashboard Management             |
-| `User`                  | View List, Create, Update, Delete                    | User Management                  |
-| `Roles And Permissions` | View List, Create, Update, Delete                    | Roles And Permissions Management |
-| `Media`                 | View List, Create, Delete                            | Media Management                 |
-| `Setting`               | View, Update                                         | Settings Management              |
-| `Activity Log`          | View List                                            | Activity Log Management          |
+| Prefix                       | Permissions                                          | Group name                       |
+| ---------------------------- | ---------------------------------------------------- | -------------------------------- |
+| `Dashboard`                  | `Dashboard View` (the gate of the whole admin panel) | Dashboard Management             |
+| `User`                       | View List, Create, Update, Delete                    | User Management                  |
+| `Roles And Permissions`      | View List, Create, Update, Delete                    | Roles And Permissions Management |
+| `Media`                      | View List, Create, Delete                            | Media Management                 |
+| `Setting`                    | View, Update                                         | Settings Management              |
+| `Activity Log`               | View List                                            | Activity Log Management          |
+| `User` (added by Foundation) | Export, Import                                       | User Management                  |
+| `Login History`              | View List, Export                                    | Login History Management         |
+| `Backup`                     | View List, Create, Download, Delete                  | Backup Management                |
 
 Standard actions map to policy abilities:
 
@@ -99,16 +102,17 @@ Resources without a model (Settings, Activity Log, Dashboard) are checked by per
 
 ## 4. Where to check
 
-| Place                   | How                                                                                                                                    |
-| ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| Whole admin area        | route middleware `can:Dashboard View` (`routes/admin.php`)                                                                             |
-| Controller read actions | `Gate::authorize('viewAny', Model::class)` / `Gate::authorize('update', $model)`, or `Gate::authorize('Setting View')` without a model |
-| Write actions           | FormRequest `authorize()`: `$this->user()->can('create', Model::class)` or `->can('Setting Update')`                                   |
-| Delete actions          | `Gate::authorize('delete', $model)` in the controller                                                                                  |
-| Row buttons             | the Resource's `can` array: `'update' => $request->user()?->can('update', $this->resource) ?? false`                                   |
-| Page buttons            | `usePermissions().can('User Create')` in Vue, or a page prop such as `canUpload`                                                       |
-| Sidebar                 | `SidebarItem::make('Users')->can('User View List')`. A group hides itself when no child is visible.                                    |
-| After login             | `RedirectsToHome` sends holders of `Dashboard View` to `admin.dashboard`, everyone else to `home`                                      |
+| Place                     | How                                                                                                                                                                 |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Whole admin area          | route middleware `can:Dashboard View` (`routes/admin.php`)                                                                                                          |
+| Controller read actions   | `Gate::authorize('viewAny', Model::class)` / `Gate::authorize('update', $model)`, or `Gate::authorize('Setting View')` without a model                              |
+| Write actions             | FormRequest `authorize()`: `$this->user()->can('create', Model::class)` or `->can('Setting Update')`                                                                |
+| Delete actions            | `Gate::authorize('delete', $model)` in the controller                                                                                                               |
+| Exports, imports, backups | `->can('Category Export')` on the **route**: the permission is checked before the FormRequest validates, so a forbidden user gets 403 instead of a validation error |
+| Row buttons               | the Resource's `can` array: `'update' => $request->user()?->can('update', $this->resource) ?? false`                                                                |
+| Page buttons              | `usePermissions().can('User Create')` in Vue, or a page prop such as `canUpload`                                                                                    |
+| Sidebar                   | `SidebarItem::make('Users')->can('User View List')`. A group hides itself when no child is visible.                                                                 |
+| After login               | `RedirectsToHome` sends holders of `Dashboard View` to `admin.dashboard`, everyone else to `home`                                                                   |
 
 **Every new `admin.*` route must deny a staff member who lacks its permission.** `tests/Feature/Modules/Core/AdminRoutesAuthorizationTest.php` calls each admin route as a user holding only `Dashboard View` and expects 403. If the route has a model parameter, add a factory closure to its `$parameters` map. Only routes listed in `ROUTES_WITHOUT_PERMISSION` are exempt.
 

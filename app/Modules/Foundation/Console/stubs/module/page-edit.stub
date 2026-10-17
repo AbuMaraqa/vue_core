@@ -1,0 +1,27 @@
+<script setup lang="ts">
+import PageHeader from '@/components/common/PageHeader.vue';
+import %%Model%%Form from '@/components/%%route%%/%%Model%%Form.vue';
+import { useTranslations } from '@/composables/useTranslations';
+import { index } from '@/routes/admin/%%route%%';
+import type { %%Model%%, Resource } from '@/types';
+
+defineProps<{
+    %%modelVar%%: Resource<%%Model%%>;
+}>();
+
+const { t } = useTranslations();
+</script>
+
+<template>
+    <div>
+        <PageHeader
+            :title="t('Edit %%Label%%')"
+            :breadcrumbs="[
+                { title: t('%%Labels%%'), href: index() },
+                { title: %%modelVar%%.data.name },
+            ]"
+        />
+
+        <%%Model%%Form :%%modelKebab%%="%%modelVar%%.data" />
+    </div>
+</template>

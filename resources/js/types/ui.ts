@@ -5,3 +5,11 @@ export type FlashToast = {
     type: 'success' | 'info' | 'warning' | 'error';
     message: string;
 };
+
+/**
+ * An option of a select, e.g. from an enum's `options()` on the server.
+ */
+export type SelectOption = {
+    value: string | number;
+    label: string;
+};

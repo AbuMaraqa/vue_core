@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Link, router, usePage } from '@inertiajs/vue3';
 import ChevronDown from '~icons/solar/alt-arrow-down-linear';
+import Devices from '~icons/solar/devices-linear';
 import LogOut from '~icons/solar/logout-2-linear';
 import ShieldCheck from '~icons/solar/shield-check-linear';
 import UserRound from '~icons/solar/user-rounded-linear';
@@ -11,6 +12,7 @@ import { useTranslations } from '@/composables/useTranslations';
 import { logout } from '@/routes';
 import { edit as editProfile } from '@/routes/profile';
 import { edit as editSecurity } from '@/routes/security';
+import { index as sessions } from '@/routes/sessions';
 
 const page = usePage();
 const { t } = useTranslations();
@@ -88,6 +90,18 @@ function handleLogout(): void {
                             class="size-5 text-gray-500 group-hover:text-gray-700 dark:text-gray-400 dark:group-hover:text-gray-300"
                         />
                         {{ t('Security') }}
+                    </Link>
+                </li>
+                <li>
+                    <Link
+                        :href="sessions()"
+                        class="group flex items-center gap-3 rounded-lg px-3 py-2 text-theme-sm font-medium text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300"
+                        @click="isOpen = false"
+                    >
+                        <Devices
+                            class="size-5 text-gray-500 group-hover:text-gray-700 dark:text-gray-400 dark:group-hover:text-gray-300"
+                        />
+                        {{ t('Active sessions') }}
                     </Link>
                 </li>
             </ul>

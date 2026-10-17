@@ -25,7 +25,7 @@ test('the create screen lists the permissions grouped by module', function () {
             ->where('permissionGroups', function ($groups): bool {
                 $userGroup = collect($groups)->firstWhere('module', 'User Management');
 
-                return $userGroup['permissions'] === ['User View List', 'User Create', 'User Update', 'User Delete'];
+                return $userGroup['permissions'] === ['User View List', 'User Create', 'User Update', 'User Delete', 'User Export', 'User Import'];
             }),
         );
 });

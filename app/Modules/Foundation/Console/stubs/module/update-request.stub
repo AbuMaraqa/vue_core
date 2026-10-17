@@ -1,0 +1,53 @@
+<?php
+
+namespace App\Modules\%%Module%%\Http\Requests\%%Models%%;
+
+use App\Modules\%%Module%%\Models\%%Model%%;
+use Illuminate\Contracts\Validation\ValidationRule;
+use Illuminate\Foundation\Http\FormRequest;
+
+class Update%%Model%%Request extends FormRequest
+{
+    /**
+     * Determine if the user is authorized to make this request.
+     */
+    public function authorize(): bool
+    {
+        return $this->user()->can('update', $this->record());
+    }
+
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array<string, ValidationRule|array<mixed>|string>
+     */
+    public function rules(): array
+    {
+        return [
+            'name' => ['required', 'string', 'max:255'],
+            'description' => ['nullable', 'string', 'max:2000'],
+        ];
+    }
+
+    /**
+     * Get custom attributes for validator errors.
+     *
+     * @return array<string, string>
+     */
+    public function attributes(): array
+    {
+        return [
+            'name' => __('Name'),
+            'description' => __('Description'),
+        ];
+    }
+
+    protected function record(): %%Model%%
+    {
+        $%%modelVar%% = $this->route('%%param%%');
+
+        abort_unless($%%modelVar%% instanceof %%Model%%, 404);
+
+        return $%%modelVar%%;
+    }
+}

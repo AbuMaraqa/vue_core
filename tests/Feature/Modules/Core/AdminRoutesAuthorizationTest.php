@@ -1,7 +1,7 @@
 <?php
 
-use App\Models\User;
 use App\Modules\Core\Models\Site;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Routing\Route as RouteDefinition;
 use Illuminate\Support\Facades\Route;
@@ -17,14 +17,34 @@ const ROUTES_WITHOUT_PERMISSION = [
     'admin.uploads.destroy',
 ];
 
-test('every admin route requires its own permission', function () {
-    Storage::fake('public');
-
-    $parameters = [
-        'user' => fn () => User::factory()->create(),
+/**
+ * A value for a route parameter. Models bound by the controller are created
+ * with their factory, so new modules are covered without editing this test.
+ */
+function routeParameterValue(RouteDefinition $route, string $parameter): mixed
+{
+    $models = [
         'role' => fn () => Role::findOrCreate('Editor', 'web'),
         'media' => fn () => Site::current()->addMedia(UploadedFile::fake()->image('photo.png'))->toMediaCollection(Site::LIBRARY),
     ];
+
+    if (isset($models[$parameter])) {
+        return $models[$parameter]();
+    }
+
+    foreach ($route->signatureParameters(['subClass' => Model::class]) as $signatureParameter) {
+        $class = $signatureParameter->getType()?->getName();
+
+        if ($signatureParameter->getName() === $parameter && is_string($class) && method_exists($class, 'factory')) {
+            return $class::factory()->create();
+        }
+    }
+
+    return 'placeholder';
+}
+
+test('every admin route requires its own permission', function () {
+    Storage::fake('public');
 
     $routes = collect(Route::getRoutes()->getRoutes())
         ->filter(fn (RouteDefinition $route): bool => str_starts_with((string) $route->getName(), 'admin.'))
@@ -36,17 +56,9 @@ test('every admin route requires its own permission', function () {
     $unprotected = [];
 
     foreach ($routes as $route) {
-        $arguments = [];
-
-        foreach (array_diff($route->parameterNames(), ['locale']) as $parameter) {
-            if (! isset($parameters[$parameter])) {
-                $unprotected[] = "{$route->getName()}: add a value for the [{$parameter}] parameter to this test";
-
-                continue 2;
-            }
-
-            $arguments[$parameter] = $parameters[$parameter]();
-        }
+        $arguments = collect(array_diff($route->parameterNames(), ['locale']))
+            ->mapWithKeys(fn (string $parameter): array => [$parameter => routeParameterValue($route, $parameter)])
+            ->all();
 
         $method = $route->methods()[0];
         $status = $this->actingAs($staffMember)->call($method, route($route->getName(), $arguments))->getStatusCode();

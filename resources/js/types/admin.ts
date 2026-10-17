@@ -83,3 +83,26 @@ export type Activity = {
     } | null;
     created_at: string | null;
 };
+
+/**
+ * What an import did (ImportResult on the server), flashed as `importResult`.
+ */
+export type ImportResult = {
+    imported: number;
+    failures: Array<{
+        row: number;
+        column: string;
+        errors: string[];
+    }>;
+};
+
+/**
+ * A backup file (Backups::all() on the server).
+ */
+export type BackupFile = {
+    id: string;
+    disk: string;
+    name: string;
+    size: number;
+    created_at: string;
+};

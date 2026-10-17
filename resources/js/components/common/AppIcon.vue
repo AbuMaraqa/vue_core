@@ -4,7 +4,9 @@ import type { Component } from 'vue';
 import History from '~icons/solar/history-linear';
 import Images from '~icons/solar/gallery-linear';
 import Circle from '~icons/solar/record-linear';
+import Database from '~icons/solar/database-linear';
 import Settings from '~icons/solar/settings-linear';
+import ShieldUser from '~icons/solar/shield-user-linear';
 import Users from '~icons/solar/users-group-rounded-linear';
 import LayoutDashboard from '~icons/solar/widget-linear';
 
@@ -16,10 +18,12 @@ import LayoutDashboard from '~icons/solar/widget-linear';
  * Unknown names fall back to a small circle.
  */
 const icons: Record<string, Component> = {
+    database: Database,
     history: History,
     images: Images,
     'layout-dashboard': LayoutDashboard,
     settings: Settings,
+    'shield-user': ShieldUser,
     users: Users,
 };
 

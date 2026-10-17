@@ -9,7 +9,17 @@ Follow the Core module as the reference implementation. **Users** is the most co
 
 Example used below: a `Catalog` module that manages `Category`.
 
-## 0. Decide: new module or Core?
+## 0. Generate it
+
+For a new module, start with the generator. It produces every layer below, already wired, formatted and tested:
+
+```bash
+php artisan make:module Catalog --resource=Category
+```
+
+Then adapt the generated model, migration, rules, resource, form and tests to the real fields; the sections below explain each layer. To add a second resource to an existing module, copy the generated files of the first one. See **motasem-foundation**.
+
+## 0.1 Decide: new module or Core?
 
 - **New business domain** (catalog, orders, branches...): create `app/Modules/<Name>`.
 - **Admin infrastructure** (users, roles, media, settings, logs): it belongs in `Core`.

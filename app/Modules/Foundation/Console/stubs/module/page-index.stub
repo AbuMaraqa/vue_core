@@ -1,0 +1,166 @@
+<script setup lang="ts">
+import ArrowDownUp from '~icons/solar/sort-vertical-linear';
+import Pencil from '~icons/solar/pen-linear';
+import Plus from '~icons/solar/add-linear';
+import Trash2 from '~icons/solar/trash-bin-minimalistic-linear';
+import BaseButton from '@/components/base/BaseButton.vue';
+import BaseIconButton from '@/components/base/BaseIconButton.vue';
+import ConfirmDialog from '@/components/common/ConfirmDialog.vue';
+import DataCard from '@/components/common/DataCard.vue';
+import EmptyState from '@/components/common/EmptyState.vue';
+import ExportMenu from '@/components/common/ExportMenu.vue';
+import PageHeader from '@/components/common/PageHeader.vue';
+import SearchInput from '@/components/common/SearchInput.vue';
+import { useConfirmDelete } from '@/composables/useConfirmDelete';
+import { useIndexFilters } from '@/composables/useIndexFilters';
+import { useLocale } from '@/composables/useLocale';
+import { usePermissions } from '@/composables/usePermissions';
+import { useTranslations } from '@/composables/useTranslations';
+import { formatDate } from '@/lib/format';
+import {
+    create,
+    destroy,
+    edit,
+    exportMethod,
+    index,
+} from '@/routes/admin/%%route%%';
+import type { %%Model%%, Paginated } from '@/types';
+
+const props = defineProps<{
+    %%modelsVar%%: Paginated<%%Model%%>;
+    filters: {
+        search: string | null;
+        sort: string;
+    };
+}>();
+
+const { t } = useTranslations();
+const { locale } = useLocale();
+const { can } = usePermissions();
+
+const { filters, sortBy } = useIndexFilters(
+    index,
+    { search: props.filters.search },
+    { sort: props.filters.sort },
+);
+
+const deletion = useConfirmDelete((%%modelVar%%: %%Model%%) =>
+    destroy({ %%param%%: %%modelVar%%.id }),
+);
+</script>
+
+<template>
+    <div>
+        <PageHeader
+            :title="t('%%Labels%%')"
+            :breadcrumbs="[{ title: t('%%Labels%%') }]"
+        >
+            <template #actions>
+                <ExportMenu v-if="can('%%Label%% Export')" :route="exportMethod" />
+                <BaseButton v-if="can('%%Label%% Create')" :href="create()">
+                    <Plus class="size-5" />
+                    {{ t('Add %%Label%%') }}
+                </BaseButton>
+            </template>
+        </PageHeader>
+
+        <DataCard :pagination="%%modelsVar%%">
+            <template #search>
+                <SearchInput
+                    v-model="filters.search"
+                    :placeholder="t('Search...')"
+                />
+            </template>
+
+            <div class="custom-scrollbar max-w-full overflow-x-auto">
+                <table v-if="%%modelsVar%%.data.length" class="min-w-full">
+                    <thead>
+                        <tr
+                            class="border-y border-gray-100 dark:border-gray-800"
+                        >
+                            <th class="th-cell">
+                                <button
+                                    type="button"
+                                    class="inline-flex items-center gap-1.5"
+                                    @click="sortBy('name')"
+                                >
+                                    {{ t('Name') }}
+                                    <ArrowDownUp class="size-3.5" />
+                                </button>
+                            </th>
+                            <th class="th-cell">
+                                <button
+                                    type="button"
+                                    class="inline-flex items-center gap-1.5"
+                                    @click="sortBy('created_at')"
+                                >
+                                    {{ t('Created at') }}
+                                    <ArrowDownUp class="size-3.5" />
+                                </button>
+                            </th>
+                            <th class="th-cell text-end">{{ t('Actions') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody
+                        class="divide-y divide-gray-100 dark:divide-gray-800"
+                    >
+                        <tr v-for="%%modelVar%% in %%modelsVar%%.data" :key="%%modelVar%%.id">
+                            <td class="td-cell">
+                                <p
+                                    class="font-medium text-gray-800 dark:text-white/90"
+                                >
+                                    {{ %%modelVar%%.name }}
+                                </p>
+                                <span
+                                    v-if="%%modelVar%%.description"
+                                    class="text-theme-xs"
+                                >
+                                    {{ %%modelVar%%.description }}
+                                </span>
+                            </td>
+                            <td class="td-cell">
+                                {{ formatDate(%%modelVar%%.created_at, locale) }}
+                            </td>
+                            <td class="td-cell">
+                                <div
+                                    class="flex items-center justify-end gap-2"
+                                >
+                                    <BaseIconButton
+                                        v-if="%%modelVar%%.can.update"
+                                        :href="edit({ %%param%%: %%modelVar%%.id })"
+                                        :label="t('Edit')"
+                                    >
+                                        <Pencil />
+                                    </BaseIconButton>
+                                    <BaseIconButton
+                                        v-if="%%modelVar%%.can.delete"
+                                        color="danger"
+                                        :label="t('Delete')"
+                                        @click="deletion.ask(%%modelVar%%)"
+                                    >
+                                        <Trash2 />
+                                    </BaseIconButton>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <EmptyState v-else :message="t('No records found.')" />
+            </div>
+        </DataCard>
+
+        <ConfirmDialog
+            :open="deletion.target !== null"
+            :title="t('Delete %%labelLower%%')"
+            :message="
+                t(
+                    'Are you sure you want to delete :name? This action cannot be undone.',
+                    { name: deletion.target?.name ?? '' },
+                )
+            "
+            :processing="deletion.processing"
+            @update:open="(open) => !open && deletion.cancel()"
+            @confirm="deletion.confirm"
+        />
+    </div>
+</template>

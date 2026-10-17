@@ -1,0 +1,15 @@
+<?php
+
+use App\Modules\%%Module%%\Http\Controllers\%%Model%%Controller;
+use Illuminate\Support\Facades\Route;
+
+Route::middleware(['web', 'auth', 'verified', 'can:Dashboard View'])
+    ->prefix('{locale}/admin')
+    ->name('admin.')
+    ->group(function () {
+        Route::get('%%route%%/export', [%%Model%%Controller::class, 'export'])
+            ->can('%%Label%% Export')
+            ->name('%%route%%.export');
+
+        Route::resource('%%route%%', %%Model%%Controller::class)->except('show');
+    });

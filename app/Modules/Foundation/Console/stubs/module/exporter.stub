@@ -1,0 +1,26 @@
+<?php
+
+namespace App\Modules\%%Module%%\Exports;
+
+use App\Modules\%%Module%%\Models\%%Model%%;
+use App\Modules\Foundation\Exports\Exporter;
+
+/**
+ * @extends Exporter<%%Model%%>
+ */
+class %%Models%%Exporter extends Exporter
+{
+    public function title(): string
+    {
+        return '%%Labels%%';
+    }
+
+    public function columns(): array
+    {
+        return [
+            'Name' => fn (%%Model%% $%%modelVar%%): string => $%%modelVar%%->name,
+            'Description' => fn (%%Model%% $%%modelVar%%): ?string => $%%modelVar%%->description,
+            'Created at' => fn (%%Model%% $%%modelVar%%): ?string => $%%modelVar%%->created_at?->format('Y-m-d H:i'),
+        ];
+    }
+}

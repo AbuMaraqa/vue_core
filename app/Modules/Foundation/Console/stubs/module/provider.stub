@@ -1,0 +1,42 @@
+<?php
+
+namespace App\Modules\%%Module%%\Providers;
+
+use App\Modules\%%Module%%\Models\%%Model%%;
+use App\Modules\%%Module%%\Policies\%%Model%%Policy;
+use App\Modules\Core\Support\ModuleServiceProvider;
+use App\Modules\Core\Support\Sidebar\Sidebar;
+use App\Modules\Core\Support\Sidebar\SidebarItem;
+
+/**
+ * The %%ModuleLabel%% module: its policies, routes and sidebar entries.
+ */
+class %%Module%%ServiceProvider extends ModuleServiceProvider
+{
+    protected array $policies = [
+        %%Model%%::class => %%Model%%Policy::class,
+    ];
+
+    protected array $routes = [
+        'routes/admin.php',
+    ];
+
+    protected function modulePath(string $path = ''): string
+    {
+        return dirname(__DIR__).($path !== '' ? DIRECTORY_SEPARATOR.$path : '');
+    }
+
+    /**
+     * To show an icon, register it in resources/js/components/common/AppIcon.vue
+     * and add ->icon('name') to the item.
+     */
+    protected function sidebar(Sidebar $sidebar): void
+    {
+        $sidebar->section('%%moduleKey%%', '%%ModuleLabel%%', sort: 50)->add(
+            SidebarItem::make('%%Labels%%')
+                ->route('admin.%%route%%.index')
+                ->activeWhen('admin.%%route%%.*')
+                ->can('%%Label%% View List'),
+        );
+    }
+}

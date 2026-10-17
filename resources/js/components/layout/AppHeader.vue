@@ -4,6 +4,7 @@ import Menu from '~icons/solar/hamburger-menu-linear';
 import X from '~icons/solar/close-linear';
 import AppLogo from '@/components/layout/AppLogo.vue';
 import LanguageSwitcher from '@/components/layout/LanguageSwitcher.vue';
+import NotificationBell from '@/components/layout/NotificationBell.vue';
 import ThemeToggler from '@/components/layout/ThemeToggler.vue';
 import UserMenu from '@/components/layout/UserMenu.vue';
 import { useSidebar } from '@/composables/useSidebar';
@@ -43,6 +44,7 @@ const { t } = useTranslations();
             <div class="flex items-center gap-2 2xsm:gap-3">
                 <LanguageSwitcher />
                 <ThemeToggler />
+                <NotificationBell />
                 <UserMenu />
             </div>
         </div>

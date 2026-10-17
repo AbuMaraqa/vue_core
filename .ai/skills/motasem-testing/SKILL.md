@@ -19,6 +19,7 @@ tests/Feature/Database/               seeders (PermissionSeeder)
 ```
 
 - Feature tests use `RefreshDatabase` (configured in `tests/Pest.php`).
+- `Tests\TestCase` calls `withoutVite()`, so tests never need `npm run build`, even for a page added a minute ago.
 - New modules go in `tests/Feature/Modules/<Module>/`.
 - Create a file with `php artisan make:test --pest Modules/Catalog/CategoryControllerTest --no-interaction`.
 - Group the tests of one controller action with `describe('index' | 'store' | 'update' | 'destroy', ...)`.
@@ -72,9 +73,18 @@ $this->actingAs(staffMember('User Create'))
 Two tests protect the permission system for every module automatically:
 
 - `tests/Feature/Modules/Core/AdminRoutesAuthorizationTest.php` iterates **every** `admin.*` route as `staffMember()` and expects 403.
-    - When you add a route with a model parameter, add a closure to `$parameters` (e.g. `'category' => fn () => Category::factory()->create()`).
+    - Route parameters resolve themselves: a model bound in the controller signature is created with its factory, and other parameters get a placeholder. Only models without a factory need an entry in `routeParameterValue()`.
     - Only routes any staff member may use belong in `ROUTES_WITHOUT_PERMISSION`.
 - `tests/Feature/Modules/Core/PermissionNamesTest.php` fails when `app/` or the Vue pages/components name a permission (`can('X')`, `Gate::authorize('X')`, `'can:X'`) that `PermissionSeeder` does not define. The failure lists each unknown name with its file.
+
+## Foundation-specific helpers
+
+- **API:** `Sanctum::actingAs($user)` or `->withToken($plainTextToken)`; send `Accept-Language` to test translated errors.
+- **CSV export:** read a `BinaryFileResponse` with `file_get_contents($response->baseResponse->getFile()->getPathname())` (see `DataTransferTest::downloadedText()`).
+- **Imports:** `UploadedFile::fake()->createWithContent('users.csv', $csv)`, then assert with `->assertInertiaFlash('importResult.imported', 1)`.
+- **Notifications:** `Notification::fake()` with `assertSentTo`, or send for real and read `notifications.index`.
+- **Sessions:** `config(['session.driver' => 'database'])` and insert rows in `sessions`.
+- **Password-confirmed pages:** `withSession(['auth.password_confirmed_at' => time()])`.
 
 ## Running
 
