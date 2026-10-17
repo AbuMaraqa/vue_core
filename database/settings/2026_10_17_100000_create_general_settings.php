@@ -1,0 +1,14 @@
+<?php
+
+use Spatie\LaravelSettings\Migrations\SettingsMigration;
+
+return new class extends SettingsMigration
+{
+    public function up(): void
+    {
+        $this->migrator->add('general.site_name', config('app.name'));
+        $this->migrator->add('general.site_description', null);
+        $this->migrator->add('general.contact_email', null);
+        $this->migrator->add('general.contact_phone', null);
+    }
+};
