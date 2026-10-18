@@ -1,7 +1,9 @@
 <?php
 
 use App\Modules\Foundation\Http\Controllers\BackupController;
+use App\Modules\Foundation\Http\Controllers\CalendarController;
 use App\Modules\Foundation\Http\Controllers\LoginHistoryController;
+use App\Modules\Foundation\Http\Controllers\PrintSettingController;
 use App\Modules\Foundation\Http\Controllers\UserTransferController;
 use Illuminate\Support\Facades\Route;
 
@@ -9,6 +11,13 @@ Route::middleware(['web', 'auth', 'verified', 'can:Dashboard View'])
     ->prefix('{locale}/admin')
     ->name('admin.')
     ->group(function () {
+        Route::middleware('can:Calendar View')->controller(CalendarController::class)->group(function () {
+            Route::get('calendar', 'index')->name('calendar.index');
+            Route::post('calendar/reminders', 'storeReminder')->name('calendar.reminders.store');
+            Route::put('calendar/reminders/{reminder}', 'updateReminder')->name('calendar.reminders.update');
+            Route::delete('calendar/reminders/{reminder}', 'destroyReminder')->name('calendar.reminders.destroy');
+        });
+
         Route::get('login-history', [LoginHistoryController::class, 'index'])->name('login-history.index');
         Route::get('login-history/export', [LoginHistoryController::class, 'export'])
             ->can('Login History Export')
@@ -27,6 +36,12 @@ Route::middleware(['web', 'auth', 'verified', 'can:Dashboard View'])
         Route::delete('backups/{backup}', [BackupController::class, 'destroy'])
             ->can('Backup Delete')
             ->name('backups.destroy');
+
+        Route::controller(PrintSettingController::class)->prefix('print-settings')->name('print-settings.')->group(function () {
+            Route::get('/', 'edit')->can('Setting View')->name('edit');
+            Route::put('/', 'update')->can('Setting Update')->name('update');
+            Route::get('preview', 'preview')->can('Setting View')->name('preview');
+        });
 
         // Export and import for Core's users list.
         Route::get('users/export', [UserTransferController::class, 'export'])

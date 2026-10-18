@@ -56,14 +56,14 @@ class SidebarItem extends SidebarNode
      */
     public function resolve(Request $request): ?array
     {
-        if (! $this->isAuthorized($request->user())) {
+        if (! $this->isVisible($request->user())) {
             return null;
         }
 
         return [
             'type' => 'item',
             'key' => $this->key(),
-            'title' => $this->title,
+            'title' => $this->title(),
             'icon' => $this->icon,
             'badge' => $this->badge,
             'url' => $this->route ? route($this->route, $this->routeParameters, absolute: false) : null,

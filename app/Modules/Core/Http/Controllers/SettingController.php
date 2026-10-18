@@ -33,6 +33,7 @@ class SettingController extends Controller
                 'appearance' => [
                     'font_family' => $appearance->font_family->value,
                     'primary_color' => $appearance->primary_color,
+                    'simple_mode' => $appearance->simple_mode,
                 ],
             ],
             'logo' => $logo ? MediaResource::make($logo) : null,
@@ -51,6 +52,7 @@ class SettingController extends Controller
         $appearance->fill([
             'font_family' => $request->enum('appearance.font_family', FontFamily::class),
             'primary_color' => strtolower($request->string('appearance.primary_color')->value()),
+            'simple_mode' => $request->boolean('appearance.simple_mode'),
         ])->save();
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Settings saved.')]);

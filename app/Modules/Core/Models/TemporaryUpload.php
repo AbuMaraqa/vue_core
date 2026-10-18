@@ -66,7 +66,13 @@ class TemporaryUpload extends Model
     protected static function booted(): void
     {
         static::deleted(function (TemporaryUpload $upload): void {
-            Storage::disk($upload->disk)->deleteDirectory(dirname($upload->path));
+            $directory = dirname($upload->path);
+
+            // Only ever the upload's own folder: a path without one would
+            // otherwise delete the whole disk, backups included.
+            if (str_starts_with($directory, 'tmp/uploads/')) {
+                Storage::disk($upload->disk)->deleteDirectory($directory);
+            }
         });
     }
 

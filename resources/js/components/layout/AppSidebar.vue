@@ -6,7 +6,7 @@ import AppLogo from '@/components/layout/AppLogo.vue';
 import AppSidebarNode from '@/components/layout/AppSidebarNode.vue';
 import { useSidebar } from '@/composables/useSidebar';
 import { useTranslations } from '@/composables/useTranslations';
-import { dashboard } from '@/routes/admin';
+import dashboard from '@/actions/App/Modules/Core/Http/Controllers/DashboardController';
 
 const page = usePage();
 const { t } = useTranslations();

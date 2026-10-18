@@ -40,6 +40,9 @@ app/
   Modules/Foundation/             cross-cutting services (see motasem-foundation): errors, request ids,
                                   /health, security headers, login history, sessions, notifications,
                                   exports/imports, backups, JSON API v1, make:module generator
+  Modules/Accounting, Contacts,   the accounting system (see motasem-accounting): ledger and reports,
+    Inventory, Banking,           customers and vendors, stock, banks and cheques, sales and purchases,
+    Invoicing, Assets, Payroll    fixed assets, payroll
 config/foundation.php                   settings of the Foundation module
 database/seeders/PermissionSeeder.php   the single list of permissions (see motasem-permissions)
 database/settings/                      spatie settings migrations
@@ -144,6 +147,7 @@ If you add a shared prop, add it to both files.
 
 - **motasem-foundation**: errors, security, notifications, exports/imports, backups, API, `make:module`.
 - **motasem-module-development**: add a module or an admin CRUD feature, end to end.
+- **motasem-accounting**: the accounting modules, the posting engine and every financial document.
 - **motasem-permissions**: permission names, policies, roles, Super Admin.
 - **motasem-admin-ui**: Vue pages, Base components, icons, Tailwind tokens, RTL.
 - **motasem-localization**: `{locale}` URLs, `t()`, `lang/ar.json`, direction.

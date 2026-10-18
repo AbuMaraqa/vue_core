@@ -9,6 +9,7 @@ use App\Modules\Core\Settings\GeneralSettings;
 use App\Modules\Core\Support\Localization\Locales;
 use App\Modules\Core\Support\Sidebar\Sidebar;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
@@ -58,8 +59,9 @@ class HandleInertiaRequests extends Middleware
             'unreadNotifications' => fn (): int => $user?->unreadNotifications()->count() ?? 0,
             'locale' => app()->getLocale(),
             'direction' => $locales->direction(),
-            'locales' => fn (): array => $locales->all(),
-            'translations' => fn (): array => $locales->translations(),
+            'locales' => Inertia::once(fn (): array => $locales->all()),
+            'translations' => Inertia::once(fn (): array => $locales->translations())
+                ->as($locales->translationsVersion()),
             'sidebar' => fn (): array => $user ? app(Sidebar::class)->resolve($request) : [],
         ];
     }

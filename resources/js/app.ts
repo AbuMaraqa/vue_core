@@ -5,6 +5,7 @@ import { initializeBrandTheme } from '@/composables/useBrandTheme';
 import AdminLayout from '@/layouts/AdminLayout.vue';
 import AuthLayout from '@/layouts/AuthLayout.vue';
 import { initializeFlashToast } from '@/lib/flashToast';
+import { initializePrefetchInvalidation } from '@/lib/prefetch';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
@@ -46,3 +47,6 @@ initializeLocale();
 
 // This will listen for flash toast data from the server...
 initializeFlashToast();
+
+// This will drop prefetched pages after every change, so they are never stale...
+initializePrefetchInvalidation();

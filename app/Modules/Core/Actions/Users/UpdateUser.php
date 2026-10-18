@@ -4,7 +4,9 @@ namespace App\Modules\Core\Actions\Users;
 
 use App\Models\User;
 use App\Modules\Core\Data\UserData;
+use App\Modules\Core\Enums\UserRole;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class UpdateUser
 {
@@ -13,6 +15,12 @@ class UpdateUser
      */
     public function handle(User $user, UserData $data): User
     {
+        if ($user->isLastSuperAdmin() && ! in_array(UserRole::SuperAdmin->value, $data->roles, true)) {
+            throw ValidationException::withMessages([
+                'roles' => __('This is the only :role. Give the role to someone else first.', ['role' => __(UserRole::SuperAdmin->value)]),
+            ]);
+        }
+
         return DB::transaction(function () use ($user, $data): User {
             $user->fill([
                 'name' => $data->name,

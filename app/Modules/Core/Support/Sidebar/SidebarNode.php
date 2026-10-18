@@ -2,6 +2,7 @@
 
 namespace App\Modules\Core\Support\Sidebar;
 
+use App\Modules\Core\Settings\AppearanceSettings;
 use Illuminate\Contracts\Auth\Access\Authorizable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -19,6 +20,10 @@ abstract class SidebarNode
     protected ?string $badge = null;
 
     protected int $sort = 100;
+
+    protected bool $advanced = false;
+
+    protected ?string $simpleTitle = null;
 
     /**
      * @var list<string>
@@ -75,9 +80,37 @@ abstract class SidebarNode
         return $this;
     }
 
+    /**
+     * Hide the node while the interface is in simple mode, e.g. for pages only an accountant needs.
+     */
+    public function advanced(bool $advanced = true): static
+    {
+        $this->advanced = $advanced;
+
+        return $this;
+    }
+
+    /**
+     * Use a plainer title while the interface is in simple mode.
+     */
+    public function simpleTitle(string $title): static
+    {
+        $this->simpleTitle = $title;
+
+        return $this;
+    }
+
     public function getSort(): int
     {
         return $this->sort;
+    }
+
+    /**
+     * Get the title shown to the user in the current interface mode.
+     */
+    public function title(): string
+    {
+        return $this->simpleTitle !== null && $this->isSimpleMode() ? $this->simpleTitle : $this->title;
     }
 
     /**
@@ -98,6 +131,19 @@ abstract class SidebarNode
         }
 
         return $user !== null && collect($this->permissions)->every(fn (string $permission): bool => $user->can($permission));
+    }
+
+    /**
+     * Determine whether the node is shown: authorized, and not an advanced node in simple mode.
+     */
+    public function isVisible(?Authorizable $user): bool
+    {
+        return ! ($this->advanced && $this->isSimpleMode()) && $this->isAuthorized($user);
+    }
+
+    protected function isSimpleMode(): bool
+    {
+        return app(AppearanceSettings::class)->simple_mode;
     }
 
     /**

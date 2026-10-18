@@ -113,7 +113,71 @@ public function export(ExportRequest $request): Response
 - **Vue:** `<ExportMenu v-if="can('Category Export')" :route="exportMethod" />`. `exportMethod` is Wayfinder's name for an `export` route; the menu keeps the current filters through `mergeQuery`.
 - **Formats:**
     - spreadsheets stream the query in chunks, with RTL sheets in Arabic;
-    - PDFs are rendered with mpdf (Arabic shaping on) from `foundation::exports.table`, capped at `foundation.exports.pdf_max_rows`.
+    - PDFs are a `TableDocument` printed through the shared print layout (section 5b), capped at `foundation.exports.pdf_max_rows`.
+
+## 5b. Printing (every PDF in the system)
+
+Every PDF uses **one layout**, `foundation::print.layout`. The layout puts these on every page:
+
+- **Header:** the logo, the site name and its description, then the document title, number and status badge, over a brand-colored rule.
+- **Footer:** the letterhead details (phone, email, address, tax number), the footer note, "Page X of Y" and "Printed on … by …".
+
+The **content** goes in between. The PDF uses the interface font chosen in the settings: TTF copies live in `Foundation/resources/fonts` and are registered by `PrintFonts`. Arabic shaping is on, and the page direction follows the locale.
+
+Never build an mpdf instance or a full HTML page yourself. Write a document class instead:
+
+```php
+// app/Modules/<M>/Printing/ReceiptDocument.php
+class ReceiptDocument extends FinancialDocument            // or PrintDocument for non-financial documents
+{
+    public function __construct(protected Payment $payment) { $payment->loadMissing([...]); }
+
+    public function title(): string { return __('Receipt'); }                 // translated
+    public function number(): ?string { return $this->payment->number; }
+    public function status(): ?array { return $this->documentStatus($this->payment->status); } // Draft/Cancelled badge
+    public function details(): array { return [__('Date') => self::date($this->payment->date)]; } // empty values are skipped
+    public function signatures(): array { return [__('Received by'), __('Accountant')]; }
+
+    protected function view(): string { return '<module>::print.receipt'; }  // content only
+    protected function data(): array { return ['payment' => $this->payment]; }
+}
+
+// controller: same authorization as the Show page
+public function pdf(Payment $payment): ReceiptDocument
+{
+    Gate::authorize('view', $payment);
+
+    return new ReceiptDocument($payment);   // Responsable: inline PDF, or a download with ?download=1
+}
+// route: Route::get('{payment}/pdf', 'pdf')->name('pdf');
+// Vue Show page: <PrintButton :url="pdf.url({ payment: payment.id })" />
+```
+
+- **Content views** receive `$direction`, `$start` and `$end` (`left`/`right`).
+- **Layout CSS classes:**
+    - `grid` is the lines table (`th`/`td`, with `tfoot` for totals);
+    - `num` is for amounts (end-aligned, LTR);
+    - `muted`, `text-start`, `text-end`, `box`;
+    - `h2` is the section title.
+- **Components** (`<x-print::...>`):
+    - `parties` holds the boxes for the customer/vendor/employee;
+    - `totals` holds the summary rows, with `emphasis` on the grand total;
+    - `amount-in-words` writes the amount in words with `AmountInWords`, for any currency: "فقط … لا غير";
+    - `notes` prints nothing when the text is empty.
+- **mpdf supports a subset of CSS:**
+    - lay out with tables, not flex or floats;
+    - margins on tables are ignored.
+- **`FinancialDocument` helpers:**
+    - `money($amount, $currency|$decimals)` works on the decimal string, so no float rounding;
+    - `quantity()`, `percent()`, `date()`, `documentStatus()`.
+- **Letterhead details:** a module adds its own by implementing `LetterheadSource` and calling `app(LetterheadFactory::class)->register(X::class)` in its provider. For example, Accounting adds the address and the tax number.
+- **Print settings** (`PrintSettings`, page `admin.print-settings.edit`, permissions `Setting View`/`Setting Update`):
+    - paper size (A4/A5/Letter);
+    - whether to show the logo;
+    - whether to show who printed the document;
+    - the footer note.
+    - `preview` prints a `SampleDocument`.
+- **Tests:** `tests/Feature/Modules/Foundation/PrintingTest.php`. For a document, assert `->assertOk()->assertHeader('Content-Type', 'application/pdf')` and the forbidden case.
 
 ## 6. Imports
 
@@ -168,6 +232,15 @@ Inertia::flash(['toast' => [...], 'importResult' => $result->toArray()]);
 | `Support/Recipients::withPermission()`              | notification recipients                                                                        |
 | `Support/UserAgent::parse()`                        | "Chrome on Windows" for logs and sessions                                                      |
 | `Support/UserSessions`, `Support/Backups`           | session and backup stores                                                                      |
+
+## 10. Calendar
+
+`/admin/calendar` (permission `Calendar View`) shows every module's dates on one month grid, with the overdue items and the next 14 days, plus the reminders staff add themselves (`Reminder`, private unless shared; only the author changes it).
+
+- A module adds a kind of date with a class extending `Support/Calendar/CalendarSource`: `key()`, `label()`, `color()` (brand, info, success, warning, error, orange, purple, pink, gray), `permission()`, `entries($from, $to, $user)` returning `CalendarEntry` objects, and optionally `overdue($today, $user)` for what is late and still open.
+- Register it in the module provider's `boot()`: `$this->app->make(Calendar::class)->register(ChequeDueDates::class);`. Sources live in `app/Modules/<Module>/Calendar/`.
+- Existing sources: cheque due dates and handovers (Banking), invoices to collect and bills to pay (Invoicing), salaries and employees joining/leaving (Payroll), monthly depreciation (Assets), production orders (Production), fiscal years (Accounting), reminders (Foundation).
+- An entry's `color` overrides its source color (red when overdue, grey when settled); `data` carries extra fields for the page (reminders use it to be edited).
 
 ## Tests
 

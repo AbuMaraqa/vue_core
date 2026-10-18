@@ -2,7 +2,7 @@
 import type { ApexOptions } from 'apexcharts';
 import { usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
-import VueApexCharts from 'vue3-apexcharts';
+import VueApexCharts from '@/lib/charts';
 import { useLocale } from '@/composables/useLocale';
 import { useTranslations } from '@/composables/useTranslations';
 

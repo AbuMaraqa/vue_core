@@ -9,6 +9,7 @@ use App\Modules\Core\Enums\UserRole;
 use Closure;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Password;
 use Spatie\Permission\Models\Role;
 
 /**
@@ -18,6 +19,13 @@ use Spatie\Permission\Models\Role;
  */
 class UsersImporter extends Importer
 {
+    /**
+     * The emails of the rows validated so far.
+     *
+     * @var array<string, true>
+     */
+    protected array $seenEmails = [];
+
     /**
      * @param  User  $importer  The staff member running the import: only super
      *                          admins may grant the super admin role.
@@ -36,8 +44,8 @@ class UsersImporter extends Importer
     {
         return [
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', Rule::unique(User::class, 'email')],
-            'password' => ['nullable', 'string', 'min:8'],
+            'email' => ['required', 'string', 'email', 'max:255', Rule::unique(User::class, 'email'), $this->firstInFile(...)],
+            'password' => ['nullable', 'string', Password::defaults()],
             'roles' => ['nullable', 'string', $this->validRoles(...)],
         ];
     }
@@ -50,6 +58,23 @@ class UsersImporter extends Importer
             roles: $this->roleNames($row['roles'] ?? null),
             password: filled($row['password'] ?? null) ? (string) $row['password'] : Str::password(24),
         ));
+    }
+
+    /**
+     * The database check cannot see the other rows of the file, and a second
+     * row with the same email would fail the whole import at the unique index.
+     */
+    protected function firstInFile(string $attribute, mixed $value, Closure $fail): void
+    {
+        $email = Str::lower(trim((string) $value));
+
+        if (isset($this->seenEmails[$email])) {
+            $fail(__('This email appears more than once in the file.'));
+
+            return;
+        }
+
+        $this->seenEmails[$email] = true;
     }
 
     /**
@@ -66,6 +91,14 @@ class UsersImporter extends Importer
 
         if (in_array(UserRole::SuperAdmin->value, $names, true) && ! $this->importer->isSuperAdmin()) {
             $fail(__('Only super admins may grant the :role role.', ['role' => __(UserRole::SuperAdmin->value)]));
+
+            return;
+        }
+
+        foreach (Role::query()->with('permissions')->whereIn('name', $existing)->get() as $role) {
+            if (! $this->importer->canGrantRole($role)) {
+                $fail(__('You cannot grant the :role role: it has permissions you do not hold.', ['role' => __($role->name)]));
+            }
         }
     }
 

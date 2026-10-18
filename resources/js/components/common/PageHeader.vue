@@ -3,7 +3,7 @@ import type { InertiaLinkProps } from '@inertiajs/vue3';
 import { Head, Link } from '@inertiajs/vue3';
 import ChevronRight from '~icons/solar/alt-arrow-right-linear';
 import { useTranslations } from '@/composables/useTranslations';
-import { dashboard } from '@/routes/admin';
+import dashboard from '@/actions/App/Modules/Core/Http/Controllers/DashboardController';
 
 export type Breadcrumb = {
     title: string;
@@ -67,7 +67,7 @@ const { t } = useTranslations();
                 </ol>
             </nav>
         </div>
-        <div v-if="$slots.actions" class="flex items-center gap-3">
+        <div v-if="$slots.actions" class="flex flex-wrap items-center gap-3">
             <slot name="actions" />
         </div>
     </div>

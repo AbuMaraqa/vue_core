@@ -31,7 +31,7 @@ test('the create screen lists the permissions grouped by module', function () {
 });
 
 test('a role is created with its permissions and recorded in the activity log', function () {
-    $this->actingAs(staffMember('Roles And Permissions Create'))
+    $this->actingAs(staffMember('Roles And Permissions Create', 'User View List', 'User Update'))
         ->post(route('admin.roles.store'), [
             'name' => 'Editor',
             'permissions' => ['User View List', 'User Update'],
@@ -70,7 +70,7 @@ test('system roles keep their name when updated', function () {
 test('the permissions of a role are replaced on update', function () {
     $role = Role::findOrCreate('Editor', 'web')->givePermissionTo('User Delete');
 
-    $this->actingAs(staffMember('Roles And Permissions Update'))
+    $this->actingAs(staffMember('Roles And Permissions Update', 'User View List'))
         ->put(route('admin.roles.update', $role), [
             'name' => 'Content Editor',
             'permissions' => ['User View List'],
@@ -81,6 +81,21 @@ test('the permissions of a role are replaced on update', function () {
 
     expect($role->name)->toBe('Content Editor')
         ->and($role->permissions->pluck('name')->all())->toBe(['User View List']);
+});
+
+test('nobody puts a permission they do not hold in a role, not even in their own', function () {
+    $editor = staffMember('Roles And Permissions Update');
+    $role = Role::query()->where('name', '!=', UserRole::SuperAdmin->value)->whereHas('users', fn ($users) => $users->whereKey($editor->id))->first()
+        ?? Role::findOrCreate('Editor', 'web');
+
+    $this->actingAs($editor)
+        ->put(route('admin.roles.update', $role), [
+            'name' => $role->name,
+            'permissions' => ['Roles And Permissions Update', 'Backup Download'],
+        ])
+        ->assertSessionHasErrors('permissions.1');
+
+    expect($role->fresh()->hasPermissionTo('Backup Download'))->toBeFalse();
 });
 
 test('custom roles can be deleted', function () {

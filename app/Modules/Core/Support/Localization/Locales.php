@@ -75,6 +75,18 @@ class Locales
     }
 
     /**
+     * Identify the translations the browser holds, so they are sent once and
+     * sent again only after a language switch or an edit of the JSON file.
+     */
+    public function translationsVersion(?string $locale = null): string
+    {
+        $locale ??= app()->getLocale();
+        $path = lang_path($locale.'.json');
+
+        return 'translations-'.$locale.'-'.(File::exists($path) ? File::lastModified($path) : 0);
+    }
+
+    /**
      * @return array<array-key, mixed>
      */
     protected function supported(): array

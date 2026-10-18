@@ -2,6 +2,7 @@
 
 namespace App\Modules\Core\Support\Sidebar;
 
+use App\Modules\Core\Settings\AppearanceSettings;
 use Illuminate\Http\Request;
 
 /**
@@ -14,6 +15,8 @@ class SidebarSection
      */
     protected array $nodes = [];
 
+    protected ?string $simpleTitle = null;
+
     public function __construct(
         public readonly string $key,
         protected string $title,
@@ -25,6 +28,26 @@ class SidebarSection
         array_push($this->nodes, ...$nodes);
 
         return $this;
+    }
+
+    /**
+     * Use a plainer title while the interface is in simple mode.
+     */
+    public function simpleTitle(string $title): static
+    {
+        $this->simpleTitle = $title;
+
+        return $this;
+    }
+
+    /**
+     * Get the title shown to the user in the current interface mode.
+     */
+    public function title(): string
+    {
+        return $this->simpleTitle !== null && app(AppearanceSettings::class)->simple_mode
+            ? $this->simpleTitle
+            : $this->title;
     }
 
     public function getSort(): int
@@ -50,7 +73,7 @@ class SidebarSection
         return [
             'type' => 'section',
             'key' => $this->key,
-            'title' => $this->title,
+            'title' => $this->title(),
             'items' => array_values($items->all()),
         ];
     }

@@ -9,6 +9,7 @@ import BaseSelect from '@/components/base/BaseSelect.vue';
 import BaseTextarea from '@/components/base/BaseTextarea.vue';
 import PageHeader from '@/components/common/PageHeader.vue';
 import AppearanceSettings from '@/components/settings/AppearanceSettings.vue';
+import InterfaceModeSettings from '@/components/settings/InterfaceModeSettings.vue';
 import { applyTheme } from '@/composables/useBrandTheme';
 import { useTranslations } from '@/composables/useTranslations';
 import { emptyMediaInput } from '@/lib/media';
@@ -29,6 +30,7 @@ const props = defineProps<{
         appearance: {
             font_family: string;
             primary_color: string;
+            simple_mode: boolean;
         };
     };
     locales: Locale[];
@@ -207,6 +209,11 @@ function submit(): void {
                         </BaseField>
                     </div>
                 </BaseCard>
+
+                <InterfaceModeSettings
+                    v-model="form.appearance.simple_mode"
+                    :error="form.errors['appearance.simple_mode']"
+                />
 
                 <AppearanceSettings
                     v-model:font="form.appearance.font_family"

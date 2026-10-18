@@ -13,11 +13,17 @@ use App\Modules\Foundation\Listeners\NotifyStaffOfBackups;
 use App\Modules\Foundation\Listeners\NotifyStaffOfNewUser;
 use App\Modules\Foundation\Listeners\RecordAuthenticationEvents;
 use App\Modules\Foundation\Models\AuthenticationLog;
+use App\Modules\Foundation\Models\Reminder;
+use App\Modules\Foundation\Policies\ReminderPolicy;
+use App\Modules\Foundation\Printing\LetterheadFactory;
+use App\Modules\Foundation\Support\Calendar\Calendar;
+use App\Modules\Foundation\Support\Calendar\Sources\ReminderDates;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
@@ -31,6 +37,10 @@ use Inertia\Inertia;
  */
 class FoundationServiceProvider extends ModuleServiceProvider
 {
+    protected array $policies = [
+        Reminder::class => ReminderPolicy::class,
+    ];
+
     protected array $routes = [
         'routes/health.php',
         'routes/web.php',
@@ -38,11 +48,20 @@ class FoundationServiceProvider extends ModuleServiceProvider
         'routes/api.php',
     ];
 
+    public function register(): void
+    {
+        $this->app->singleton(Calendar::class);
+        $this->app->singleton(LetterheadFactory::class);
+    }
+
     public function boot(): void
     {
         parent::boot();
 
+        $this->app->make(Calendar::class)->register(ReminderDates::class);
+
         $this->loadViewsFrom($this->modulePath('resources/views'), 'foundation');
+        Blade::anonymousComponentPath($this->modulePath('resources/views/print/components'), 'print');
 
         if ($this->app->runningInConsole()) {
             $this->commands([MakeModuleCommand::class]);
@@ -69,17 +88,31 @@ class FoundationServiceProvider extends ModuleServiceProvider
 
     protected function sidebar(Sidebar $sidebar): void
     {
+        $sidebar->section('main')->add(
+            SidebarItem::make('Calendar')
+                ->icon('calendar')
+                ->route('admin.calendar.index')
+                ->can('Calendar View')
+                ->sort(2),
+        );
+
         $sidebar->section('system')->add(
             SidebarItem::make('Login History')
                 ->icon('shield-user')
                 ->route('admin.login-history.index')
                 ->can('Login History View List')
+                ->advanced()
                 ->sort(22),
             SidebarItem::make('Backups')
                 ->icon('database')
                 ->route('admin.backups.index')
                 ->can('Backup View List')
                 ->sort(25),
+            SidebarItem::make('Print Settings')
+                ->icon('printer')
+                ->route('admin.print-settings.edit')
+                ->can('Setting View')
+                ->sort(31),
         );
     }
 

@@ -6,7 +6,7 @@ import BaseButton from '@/components/base/BaseButton.vue';
 import { usePermissions } from '@/composables/usePermissions';
 import { useTranslations } from '@/composables/useTranslations';
 import { home } from '@/routes';
-import { dashboard } from '@/routes/admin';
+import dashboard from '@/actions/App/Modules/Core/Http/Controllers/DashboardController';
 
 const props = defineProps<{
     status: number;

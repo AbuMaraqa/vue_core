@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Modules\Core\Policies\MediaPolicy;
 use App\Modules\Core\Policies\RolePolicy;
 use App\Modules\Core\Policies\UserPolicy;
+use App\Modules\Core\Support\Dashboard\Dashboard;
 use App\Modules\Core\Support\ModuleServiceProvider;
 use App\Modules\Core\Support\Sidebar\Sidebar;
 use App\Modules\Core\Support\Sidebar\SidebarGroup;
@@ -32,6 +33,7 @@ class CoreServiceProvider extends ModuleServiceProvider
     public function register(): void
     {
         $this->app->singleton(Sidebar::class);
+        $this->app->singleton(Dashboard::class);
     }
 
     public function boot(): void
@@ -68,6 +70,7 @@ class CoreServiceProvider extends ModuleServiceProvider
     {
         $sidebar->section('main', 'Menu', sort: 10)->add(
             SidebarItem::make('Dashboard')
+                ->simpleTitle('Home')
                 ->icon('layout-dashboard')
                 ->route('admin.dashboard')
                 ->sort(1),
@@ -84,21 +87,25 @@ class CoreServiceProvider extends ModuleServiceProvider
                         ->can('User View List'),
                     SidebarItem::make('Add User')
                         ->route('admin.users.create')
-                        ->can('User Create'),
+                        ->can('User Create')
+                        ->advanced(),
                     SidebarItem::make('Roles & Permissions')
                         ->route('admin.roles.index')
                         ->activeWhen('admin.roles.create', 'admin.roles.edit')
-                        ->can('Roles And Permissions View List'),
+                        ->can('Roles And Permissions View List')
+                        ->advanced(),
                 ),
             SidebarItem::make('Media Library')
                 ->icon('images')
                 ->route('admin.media.index')
                 ->can('Media View List')
+                ->advanced()
                 ->sort(15),
             SidebarItem::make('Activity Log')
                 ->icon('history')
                 ->route('admin.activity-log.index')
                 ->can('Activity Log View List')
+                ->advanced()
                 ->sort(20),
             SidebarItem::make('Settings')
                 ->icon('settings')

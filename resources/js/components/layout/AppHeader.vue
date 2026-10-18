@@ -9,7 +9,7 @@ import ThemeToggler from '@/components/layout/ThemeToggler.vue';
 import UserMenu from '@/components/layout/UserMenu.vue';
 import { useSidebar } from '@/composables/useSidebar';
 import { useTranslations } from '@/composables/useTranslations';
-import { dashboard } from '@/routes/admin';
+import dashboard from '@/actions/App/Modules/Core/Http/Controllers/DashboardController';
 
 const { isMobileOpen, toggleSidebar } = useSidebar();
 const { t } = useTranslations();

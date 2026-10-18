@@ -13,3 +13,18 @@ export type SelectOption = {
     value: string | number;
     label: string;
 };
+
+/**
+ * An option of BaseCombobox.
+ */
+export type ComboboxOption = {
+    value: string | number;
+    label: string;
+    hint?: string;
+    disabled?: boolean;
+};
+
+/**
+ * A translatable attribute: one value per language code, e.g. `{ ar, en }`.
+ */
+export type Translations = Record<string, string>;

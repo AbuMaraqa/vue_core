@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Deferred } from '@inertiajs/vue3';
+import { Deferred, usePage } from '@inertiajs/vue3';
 import ActivityIcon from '~icons/solar/pulse-linear';
 import ShieldCheck from '~icons/solar/shield-check-linear';
 import UserPlus from '~icons/solar/user-plus-rounded-linear';
@@ -7,13 +7,21 @@ import Users from '~icons/solar/users-group-rounded-linear';
 import { defineAsyncComponent } from 'vue';
 import BaseCard from '@/components/base/BaseCard.vue';
 import PageHeader from '@/components/common/PageHeader.vue';
+import BusinessStats from '@/components/dashboard/BusinessStats.vue';
+import QuickActions from '@/components/dashboard/QuickActions.vue';
 import RecentActivity from '@/components/dashboard/RecentActivity.vue';
 import RecentUsers from '@/components/dashboard/RecentUsers.vue';
 import StatCard from '@/components/dashboard/StatCard.vue';
 import { useLocale } from '@/composables/useLocale';
 import { useTranslations } from '@/composables/useTranslations';
 import { formatNumber } from '@/lib/format';
-import type { Activity, ManagedUser, Resource } from '@/types';
+import type {
+    Activity,
+    DashboardShortcut,
+    DashboardStat,
+    ManagedUser,
+    Resource,
+} from '@/types';
 
 // The charting library is large, so it is only downloaded once the chart is rendered.
 const RegistrationsChart = defineAsyncComponent(
@@ -21,6 +29,8 @@ const RegistrationsChart = defineAsyncComponent(
 );
 
 defineProps<{
+    shortcuts: DashboardShortcut[];
+    businessStats?: DashboardStat[];
     stats: {
         users: number;
         newUsers: number;
@@ -35,13 +45,50 @@ defineProps<{
 
 const { t } = useTranslations();
 const { locale } = useLocale();
+const page = usePage();
 </script>
 
 <template>
     <div>
-        <PageHeader :title="t('Dashboard')" />
+        <PageHeader
+            :title="page.props.theme.simpleMode ? t('Home') : t('Dashboard')"
+        />
 
-        <div class="grid grid-cols-12 gap-4 md:gap-6">
+        <section v-if="shortcuts.length" class="mb-6 md:mb-8">
+            <h2
+                class="mb-3 text-lg font-semibold text-gray-800 md:mb-4 dark:text-white/90"
+            >
+                {{ t('What do you want to do?') }}
+            </h2>
+            <QuickActions :shortcuts="shortcuts" />
+        </section>
+
+        <Deferred data="businessStats">
+            <template #fallback>
+                <div
+                    class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 md:mb-8 md:gap-6 xl:grid-cols-4"
+                >
+                    <div
+                        v-for="index in 4"
+                        :key="index"
+                        class="h-36 animate-pulse rounded-2xl bg-gray-100 dark:bg-gray-800"
+                    />
+                </div>
+            </template>
+            <section v-if="businessStats?.length" class="mb-6 md:mb-8">
+                <h2
+                    class="mb-3 text-lg font-semibold text-gray-800 md:mb-4 dark:text-white/90"
+                >
+                    {{ t('Your money at a glance') }}
+                </h2>
+                <BusinessStats :stats="businessStats" />
+            </section>
+        </Deferred>
+
+        <div
+            v-if="!page.props.theme.simpleMode"
+            class="grid grid-cols-12 gap-4 md:gap-6"
+        >
             <div
                 class="col-span-12 grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6 xl:grid-cols-4"
             >

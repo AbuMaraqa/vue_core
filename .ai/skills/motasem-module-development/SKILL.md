@@ -83,6 +83,8 @@ class CatalogServiceProvider extends ModuleServiceProvider
 
 - Add the provider to `bootstrap/providers.php`, after `CoreServiceProvider`.
 - Existing sidebar sections: `main` ("Menu", sort 10) and `system` ("System", sort 90). Pass the same key to add items to an existing section. Use `SidebarGroup::make('...')->icon(...)->add(SidebarItem ...)` for a collapsible menu.
+- **Simple mode** (`AppearanceSettings::$simple_mode`, on by default, switched on the settings page) is for people who do not know accounting. Mark pages only an accountant needs with `->advanced()`: they are hidden in simple mode. Give technical titles a plain one with `->simpleTitle('Who owes me')`. Both work on items and groups, and every title is a key in `lang/ar.json`.
+- **Dashboard:** override `dashboard(Dashboard $dashboard)` to add quick-action buttons for everyday tasks, e.g. `DashboardShortcut::make('New sale')->description('...')->icon('cart-plus')->tone('success')->route(...)->can('Sales Invoice Create')->sort(10)`, and key figures with `$dashboard->stats(fn (User $user): array => [DashboardStat::make('...')->money($amount, $code, $decimals)->hint('...')])` (the closure runs only when the deferred `businessStats` prop loads; check permissions inside it). Use plain words in titles and descriptions.
 - The icon name must exist in `resources/js/components/common/AppIcon.vue`. Register new Solar icons there.
 - If you override `boot()`, call `parent::boot()`.
 

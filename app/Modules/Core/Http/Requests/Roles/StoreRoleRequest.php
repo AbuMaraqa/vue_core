@@ -2,6 +2,7 @@
 
 namespace App\Modules\Core\Http\Requests\Roles;
 
+use App\Modules\Core\Http\Requests\Roles\Concerns\ValidatesGrantablePermissions;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -10,6 +11,8 @@ use Spatie\Permission\Models\Role;
 
 class StoreRoleRequest extends FormRequest
 {
+    use ValidatesGrantablePermissions;
+
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -28,7 +31,7 @@ class StoreRoleRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:50', Rule::unique(Role::class, 'name')],
             'permissions' => ['present', 'array'],
-            'permissions.*' => ['string', 'distinct', Rule::exists(Permission::class, 'name')],
+            'permissions.*' => ['string', 'distinct', Rule::exists(Permission::class, 'name'), $this->grantablePermission(...)],
         ];
     }
 }

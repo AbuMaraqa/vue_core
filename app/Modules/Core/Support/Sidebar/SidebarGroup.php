@@ -29,7 +29,7 @@ class SidebarGroup extends SidebarNode
      */
     public function resolve(Request $request): ?array
     {
-        if (! $this->isAuthorized($request->user())) {
+        if (! $this->isVisible($request->user())) {
             return null;
         }
 
@@ -46,7 +46,7 @@ class SidebarGroup extends SidebarNode
         return [
             'type' => 'group',
             'key' => $this->key(),
-            'title' => $this->title,
+            'title' => $this->title(),
             'icon' => $this->icon,
             'badge' => $this->badge,
             'active' => $children->contains('active', true),

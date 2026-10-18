@@ -6,8 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Modules\Core\Http\Resources\ActivityResource;
 use App\Modules\Core\Http\Resources\UserResource;
+use App\Modules\Core\Support\Dashboard\Dashboard;
 use Flowframe\Trend\Trend;
 use Flowframe\Trend\TrendValue;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 use Spatie\Activitylog\Models\Activity;
@@ -16,11 +18,14 @@ use Spatie\Permission\Models\Role;
 class DashboardController extends Controller
 {
     /**
-     * Show the admin dashboard.
+     * Show the admin dashboard: the quick actions and key figures of the
+     * installed modules, then the users overview.
      */
-    public function __invoke(): Response
+    public function __invoke(Request $request, Dashboard $dashboard): Response
     {
         return Inertia::render('admin/Dashboard', [
+            'shortcuts' => $dashboard->resolveShortcuts($request),
+            'businessStats' => Inertia::defer(fn (): array => $dashboard->resolveStats($request), 'business'),
             'stats' => $this->stats(),
             'registrations' => Inertia::defer(fn (): array => $this->registrationsPerMonth()),
             'recentUsers' => UserResource::collection(User::query()->with('roles')->latest()->limit(5)->get()),

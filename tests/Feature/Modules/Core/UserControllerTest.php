@@ -123,6 +123,62 @@ describe('update', function () {
             ->get(route('admin.users.edit', $superAdmin))
             ->assertForbidden();
     });
+
+    test('staff members cannot edit their own account here, so they cannot raise their own roles', function () {
+        $staff = staffMember('User Update');
+
+        $this->actingAs($staff)
+            ->put(route('admin.users.update', $staff), [
+                'name' => $staff->name,
+                'email' => $staff->email,
+                'roles' => [UserRole::Admin->value],
+            ])
+            ->assertForbidden();
+    });
+
+    test('a role with more access than the editor holds cannot be granted', function () {
+        Role::findOrCreate('Accountant', 'web')->givePermissionTo(User::factory()->withPermissions('Backup Download')->create()->getAllPermissions());
+        $user = User::factory()->create();
+
+        $this->actingAs(staffMember('User Update'))
+            ->put(route('admin.users.update', $user), [
+                'name' => $user->name,
+                'email' => $user->email,
+                'roles' => ['Accountant'],
+            ])
+            ->assertSessionHasErrors('roles.0');
+
+        expect($user->fresh()->hasRole('Accountant'))->toBeFalse();
+    });
+
+    test('nobody resets the password of an account with more access than their own', function () {
+        $manager = User::factory()->withPermissions('Backup Download')->create();
+
+        $this->actingAs(staffMember('User Update'))
+            ->put(route('admin.users.update', $manager), [
+                'name' => $manager->name,
+                'email' => $manager->email,
+                'password' => 'taken-over',
+                'password_confirmation' => 'taken-over',
+                'roles' => [],
+            ])
+            ->assertForbidden();
+    });
+
+    test('the last super admin keeps the role', function () {
+        Role::findOrCreate(UserRole::SuperAdmin->value, 'web');
+        $superAdmin = User::factory()->superAdmin()->create();
+
+        $this->actingAs($superAdmin)
+            ->put(route('admin.users.update', $superAdmin), [
+                'name' => $superAdmin->name,
+                'email' => $superAdmin->email,
+                'roles' => [],
+            ])
+            ->assertSessionHasErrors('roles');
+
+        expect($superAdmin->fresh()->isSuperAdmin())->toBeTrue();
+    });
 });
 
 describe('destroy', function () {

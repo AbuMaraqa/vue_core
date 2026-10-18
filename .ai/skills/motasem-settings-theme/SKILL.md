@@ -13,7 +13,7 @@ Settings classes live in `app/Modules/Core/Settings/`. Each one has a `group()` 
 | ---------------------- | -------------- | -------------------------------------------------------------------------------------------- |
 | `GeneralSettings`      | `general`      | `site_name`, `?site_description`, `?contact_email`, `?contact_phone`                         |
 | `LocalizationSettings` | `localization` | `default_locale` (fallback when the visitor/user has none)                                   |
-| `AppearanceSettings`   | `appearance`   | `FontFamily $font_family`, `string $primary_color` (hex), plus `theme()` for the shared prop |
+| `AppearanceSettings`   | `appearance`   | `FontFamily $font_family`, `string $primary_color` (hex), `bool $simple_mode`, plus `theme()` for the shared prop (`theme.simpleMode`) |
 
 **Reading.** Inject the class (`public function edit(GeneralSettings $general)`) or use `app(GeneralSettings::class)->site_name`.
 

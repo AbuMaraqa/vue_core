@@ -14,6 +14,12 @@ class AppearanceSettings extends Settings
      */
     public string $primary_color;
 
+    /**
+     * Whether the interface is simplified for people who do not know accounting:
+     * advanced menus are hidden and plain titles are used.
+     */
+    public bool $simple_mode;
+
     public static function group(): string
     {
         return 'appearance';
@@ -22,7 +28,7 @@ class AppearanceSettings extends Settings
     /**
      * Get the theme shared with every page.
      *
-     * @return array{font: string, fontVariable: string, primaryColor: string}
+     * @return array{font: string, fontVariable: string, primaryColor: string, simpleMode: bool}
      */
     public function theme(): array
     {
@@ -30,6 +36,7 @@ class AppearanceSettings extends Settings
             'font' => $this->font_family->value,
             'fontVariable' => $this->font_family->cssVariable(),
             'primaryColor' => $this->primary_color,
+            'simpleMode' => $this->simple_mode,
         ];
     }
 }

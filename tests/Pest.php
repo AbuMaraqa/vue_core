@@ -1,6 +1,8 @@
 <?php
 
 use App\Models\User;
+use App\Modules\Accounting\Models\Account;
+use Database\Seeders\AccountingSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -38,4 +40,21 @@ function staffMember(string ...$permissions): User
     return User::factory()
         ->withPermissions('Dashboard View', ...$permissions)
         ->create();
+}
+
+/**
+ * Seed the starting accounting data: currencies, chart of accounts with its
+ * default accounts, taxes and the current fiscal year.
+ */
+function seedAccounting(): void
+{
+    test()->seed(AccountingSeeder::class);
+}
+
+/**
+ * An account of the seeded chart of accounts, by code.
+ */
+function account(string $code): Account
+{
+    return Account::query()->where('code', $code)->firstOrFail();
 }

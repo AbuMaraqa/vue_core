@@ -25,6 +25,7 @@ function validSettings(array $overrides = []): array
         'appearance' => [
             'font_family' => FontFamily::Cairo->value,
             'primary_color' => '#12B76A',
+            'simple_mode' => true,
         ],
     ], $overrides);
 }
@@ -92,7 +93,25 @@ test('the appearance values are validated', function (array $appearance, string 
     'unknown font' => [['font_family' => 'comic-sans'], 'appearance.font_family'],
     'color name' => [['primary_color' => 'red'], 'appearance.primary_color'],
     'css injection' => [['primary_color' => '#fff; background: url(x)'], 'appearance.primary_color'],
+    'unknown interface mode' => [['simple_mode' => 'sometimes'], 'appearance.simple_mode'],
 ]);
+
+test('the interface can be switched to the full mode for accountants', function () {
+    $staffMember = staffMember('Setting View', 'Setting Update');
+
+    $this->actingAs($staffMember)
+        ->put(route('admin.settings.update'), validSettings(['appearance' => ['simple_mode' => false]]))
+        ->assertRedirect(route('admin.settings.edit'));
+
+    expect(app(AppearanceSettings::class)->refresh()->simple_mode)->toBeFalse();
+
+    $this->actingAs($staffMember)
+        ->get(route('admin.settings.edit'))
+        ->assertInertia(fn (Assert $page) => $page
+            ->where('theme.simpleMode', false)
+            ->where('settings.appearance.simple_mode', false),
+        );
+});
 
 describe('logo', function () {
     beforeEach(function () {

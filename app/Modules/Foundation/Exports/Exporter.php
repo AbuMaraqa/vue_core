@@ -2,12 +2,13 @@
 
 namespace App\Modules\Foundation\Exports;
 
+use App\Modules\Foundation\Printing\PdfRenderer;
+use App\Modules\Foundation\Printing\TableDocument;
 use Closure;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
-use Mccarlosen\LaravelMpdf\Facades\LaravelMpdf;
 use Spatie\QueryBuilder\QueryBuilder;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -118,23 +119,15 @@ abstract class Exporter
         $limit = config()->integer('foundation.exports.pdf_max_rows');
         $records = $this->query()->limit($limit + 1)->get();
 
-        $html = view('foundation::exports.table', [
-            'title' => __($this->title()),
-            'headings' => $this->headings(),
-            'rows' => $records->take($limit)->map(fn (Model $record): array => $this->row($record)),
-            'truncated' => $records->count() > $limit,
-            'limit' => $limit,
-        ])->render();
+        $document = new TableDocument(
+            title: __($this->title()),
+            headings: $this->headings(),
+            rows: $records->take($limit)->map(fn (Model $record): array => $this->row($record)),
+            summary: [__(':count records', ['count' => min($records->count(), $limit)])],
+            notice: $records->count() > $limit ? (string) __('Only the first :limit records are included. Export to Excel for the full list.', ['limit' => $limit]) : null,
+            filename: $filename,
+        );
 
-        $content = LaravelMpdf::loadHTML($html, [
-            'auto_language_detection' => true,
-            'orientation' => count($this->columns()) > 5 ? 'L' : 'P',
-            'title' => __($this->title()),
-        ])->output();
-
-        return response($content, 200, [
-            'Content-Type' => 'application/pdf',
-            'Content-Disposition' => 'attachment; filename="'.$filename.'"',
-        ]);
+        return app(PdfRenderer::class)->response($document, download: true);
     }
 }

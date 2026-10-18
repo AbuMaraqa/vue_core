@@ -9,12 +9,17 @@ use Illuminate\Support\Facades\Storage;
 use Spatie\Permission\Models\Role;
 
 /**
- * Admin routes any staff member may use without a dedicated permission.
+ * Admin routes any staff member may use without a dedicated permission:
+ * the dashboard, temporary uploads, and the lookups every document form needs:
+ * exchange rates, and the contact and item pickers (names and prices only).
  */
 const ROUTES_WITHOUT_PERMISSION = [
     'admin.dashboard',
     'admin.uploads.store',
     'admin.uploads.destroy',
+    'admin.accounting.exchange-rate',
+    'admin.contacts.search',
+    'admin.inventory.items.search',
 ];
 
 /**

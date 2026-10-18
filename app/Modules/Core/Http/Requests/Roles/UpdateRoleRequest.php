@@ -3,6 +3,7 @@
 namespace App\Modules\Core\Http\Requests\Roles;
 
 use App\Modules\Core\Enums\UserRole;
+use App\Modules\Core\Http\Requests\Roles\Concerns\ValidatesGrantablePermissions;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -11,6 +12,8 @@ use Spatie\Permission\Models\Role;
 
 class UpdateRoleRequest extends FormRequest
 {
+    use ValidatesGrantablePermissions;
+
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -39,7 +42,7 @@ class UpdateRoleRequest extends FormRequest
                 Rule::when(UserRole::isProtected($role->name), [Rule::in([$role->name])]),
             ],
             'permissions' => ['present', 'array'],
-            'permissions.*' => ['string', 'distinct', Rule::exists(Permission::class, 'name')],
+            'permissions.*' => ['string', 'distinct', Rule::exists(Permission::class, 'name'), $this->grantablePermission(...)],
         ];
     }
 

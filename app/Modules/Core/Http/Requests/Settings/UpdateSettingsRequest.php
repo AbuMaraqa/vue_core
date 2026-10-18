@@ -37,6 +37,7 @@ class UpdateSettingsRequest extends FormRequest
             'localization.default_locale' => ['required', 'string', Rule::in($locales->codes())],
             'appearance.font_family' => ['required', Rule::enum(FontFamily::class)],
             'appearance.primary_color' => ['required', 'string', 'regex:/^#[0-9a-fA-F]{6}$/'],
+            'appearance.simple_mode' => ['required', 'boolean'],
             ...$this->mediaRules('logo', Site::IMAGE_MIME_TYPES, maxKilobytes: 2048, maxFiles: 1),
         ];
     }
@@ -56,6 +57,7 @@ class UpdateSettingsRequest extends FormRequest
             'localization.default_locale' => __('Default language'),
             'appearance.font_family' => __('Font'),
             'appearance.primary_color' => __('Primary color'),
+            'appearance.simple_mode' => __('Interface mode'),
         ];
     }
 }

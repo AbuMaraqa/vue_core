@@ -65,6 +65,8 @@ const isOpen = computed(
                         <Link
                             v-if="child.url"
                             :href="child.url"
+                            prefetch
+                            cache-for="10s"
                             :class="[
                                 'menu-dropdown-item first:mt-2',
                                 child.active
@@ -88,6 +90,8 @@ const isOpen = computed(
         <Link
             v-else-if="node.url"
             :href="node.url"
+            prefetch
+            cache-for="10s"
             :class="[
                 'group menu-item',
                 node.active ? 'menu-item-active' : 'menu-item-inactive',

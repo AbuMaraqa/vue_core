@@ -10,7 +10,7 @@ import ThemeToggler from '@/components/layout/ThemeToggler.vue';
 import { usePermissions } from '@/composables/usePermissions';
 import { useTranslations } from '@/composables/useTranslations';
 import { login, logout, register } from '@/routes';
-import { dashboard } from '@/routes/admin';
+import dashboard from '@/actions/App/Modules/Core/Http/Controllers/DashboardController';
 
 const page = usePage();
 const { t } = useTranslations();

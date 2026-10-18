@@ -15,11 +15,17 @@ class UserPolicy
     }
 
     /**
-     * Only super admins may manage other super admins.
+     * Nobody manages an account with more access than their own, and staff
+     * change their own account from their profile, not here: otherwise
+     * `User Update` would let them give themselves any role.
      */
     public function update(User $user, User $model): bool
     {
-        if ($model->isSuperAdmin() && ! $user->isSuperAdmin()) {
+        if ($user->is($model) && ! $user->isSuperAdmin()) {
+            return false;
+        }
+
+        if (! $user->canManage($model)) {
             return false;
         }
 
@@ -35,7 +41,7 @@ class UserPolicy
             return false;
         }
 
-        if ($model->isSuperAdmin() && ! $user->isSuperAdmin()) {
+        if (! $user->canManage($model)) {
             return false;
         }
 

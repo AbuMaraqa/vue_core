@@ -1,7 +1,9 @@
 <?php
 
+use App\Http\Middleware\HandleInertiaRequests;
 use App\Models\User;
 use App\Modules\Core\Settings\LocalizationSettings;
+use App\Modules\Core\Support\Localization\Locales;
 use Inertia\Testing\AssertableInertia as Assert;
 
 test('switching the language reloads the current page in that language', function () {
@@ -43,6 +45,28 @@ test('pages are served in the language of the url with the matching direction', 
             ->where('direction', 'rtl')
             ->where('translations.Sign In', 'تسجيل الدخول'),
         );
+});
+
+test('translations are sent once and again only for another language', function () {
+    $user = User::factory()->create();
+    $loaded = app(Locales::class)->translationsVersion('ar');
+    $headers = [
+        'X-Inertia' => 'true',
+        'X-Inertia-Version' => app(HandleInertiaRequests::class)->version(request()),
+        'X-Inertia-Except-Once-Props' => $loaded,
+    ];
+
+    $this->actingAs($user)
+        ->get('/ar/settings/profile', $headers)
+        ->assertOk()
+        ->assertJsonMissingPath('props.translations')
+        ->assertJsonPath("onceProps.{$loaded}.prop", 'translations');
+
+    $this->actingAs($user)
+        ->get('/en/settings/profile', $headers)
+        ->assertOk()
+        ->assertJsonStructure(['props' => ['translations']])
+        ->assertJsonPath('onceProps.'.app(Locales::class)->translationsVersion('en').'.prop', 'translations');
 });
 
 test('unsupported language segments are not found', function () {

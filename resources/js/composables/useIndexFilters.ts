@@ -1,7 +1,7 @@
 import { router } from '@inertiajs/vue3';
 import { watchDebounced } from '@vueuse/core';
-import type { Ref } from 'vue';
-import { reactive, ref, watch } from 'vue';
+import type { ComputedRef, Ref } from 'vue';
+import { computed, reactive, ref, watch } from 'vue';
 
 export type IndexFiltersOptions = {
     /**
@@ -19,6 +19,11 @@ export type IndexFiltersOptions = {
 export type UseIndexFiltersReturn<TKey extends string> = {
     filters: Record<TKey, string>;
     sort: Ref<string | undefined>;
+    /**
+     * How many filters other than the text fields are set, for the badge of
+     * the collapsed filters button on phones.
+     */
+    activeCount: ComputedRef<number>;
     apply: () => void;
     sortBy: (column: string) => void;
 };
@@ -79,5 +84,11 @@ export function useIndexFilters<TKey extends string>(
         apply,
     );
 
-    return { filters, sort, apply, sortBy };
+    const activeCount = computed(
+        () =>
+            keys.filter((key) => !debounced.includes(key) && filters[key])
+                .length,
+    );
+
+    return { filters, sort, activeCount, apply, sortBy };
 }
